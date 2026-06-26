@@ -1,0 +1,1832 @@
+{
+  "rows": [
+    {
+      "catalog_query_supported": true,
+      "catname": "ast3",
+      "datatype": "catalog,image,lightcurve",
+      "description_en": "The Antarctic Survey Telescopes (AST3, http://aag.bao.ac.cn/ast3/) consist of three 50/68cm modified Schmidt telescopes, equipped with 10k x 10k STA1600FT CCD camera. AST3 are designed for multi-band wide-field survey at Dome A, Antarctica with a FoV of 4.3 square degrees. The first AST3 (AST3-1) has been deployed to Dome A, Antarctica by the 28th Chinese Antarctic Research Expedition (CHINARE) team in January 2012, and is the largest optical telescope in Antarctica so far.",
+      "description_zh": "&gt;&gt;&gt; <a href=\"https://nadc.china-vo.org/data/article/20180405011930\" style=\"color:#f00;\">Download all light curves in each field</a>",
+      "downloadlink": "https://nadc.china-vo.org/data/article/20180405011930",
+      "file_download": {
+        "batch_download_endpoint": null,
+        "categories": [],
+        "id_source": null,
+        "single_file_endpoint": null,
+        "single_file_query_by_category": {},
+        "supported": false
+      },
+      "file_download_supported": false,
+      "intro_en": "/article/20150915162302",
+      "intro_zh": "/article/20150915162031",
+      "officiallink": "",
+      "parent_catname": null,
+      "queryable": true,
+      "shortname": "AST3",
+      "showname_en": "Antarctic AST3 Telescope",
+      "showname_zh": "\u5357\u6781AST3\u671b\u8fdc\u955c\u6570\u636e\u96c6",
+      "table_query_supported": true
+    },
+    {
+      "catalog_query_supported": false,
+      "catname": "ast3-2",
+      "datatype": "catalog,image,lightcurve",
+      "description_en": "The Antarctic Survey Telescopes (AST3, http://aag.bao.ac.cn/ast3/) consist of three 50/68cm modified Schmidt telescopes, equipped with 10k x 10k STA1600FT CCD camera. AST3 are designed for multi-band wide-field survey at Dome A, Antarctica with a FoV of 4.3 square degrees. The first AST3 (AST3-1) has been deployed to Dome A, Antarctica by the 28th Chinese Antarctic Research Expedition (CHINARE) team in January 2012, and is the largest optical telescope in Antarctica so far.",
+      "description_zh": "&gt;&gt;&gt; <a href=\"https://nadc.china-vo.org/data/article/20180405011930\" style=\"color:#f00;\">Download all light curves in each field</a>",
+      "downloadlink": "https://nadc.china-vo.org/data/article/20180405011930",
+      "file_download": {
+        "batch_download_endpoint": null,
+        "categories": [],
+        "id_source": null,
+        "single_file_endpoint": null,
+        "single_file_query_by_category": {},
+        "supported": false
+      },
+      "file_download_supported": false,
+      "intro_en": null,
+      "intro_zh": null,
+      "officiallink": null,
+      "parent_catname": null,
+      "queryable": false,
+      "shortname": "AST3 DR2",
+      "showname_en": "Antarctic AST3 Telescope DR2",
+      "showname_zh": "\u5357\u6781AST3\u671b\u8fdc\u955c\u6570\u636e\u96c6",
+      "table_query_supported": false
+    },
+    {
+      "catalog_query_supported": true,
+      "catname": "ast3-2-catalog",
+      "datatype": "catalog",
+      "description_en": "&gt;&gt;&gt; <a href=\"https://nadc.china-vo.org/data/article/20180405013715\" style=\"color:#f00;\">Download Survey Catalog</a>",
+      "description_zh": "&gt;&gt;&gt; <a href=\"https://nadc.china-vo.org/data/article/20180405013715\" style=\"color:#f00;\">Download Survey Catalog</a>",
+      "downloadlink": "https://nadc.china-vo.org/data/article/20180405013715",
+      "file_download": {
+        "batch_download_endpoint": null,
+        "categories": [],
+        "id_source": null,
+        "single_file_endpoint": null,
+        "single_file_query_by_category": {},
+        "supported": false
+      },
+      "file_download_supported": false,
+      "intro_en": "/article/20150915162302",
+      "intro_zh": "/article/20150915162031",
+      "officiallink": "",
+      "parent_catname": "ast3-2",
+      "queryable": true,
+      "shortname": "AST3 DR2 Catalo",
+      "showname_en": "Antarctic AST3 Telescope Data DR2 - Catalog",
+      "showname_zh": "\u5357\u6781AST3\u671b\u8fdc\u955c\u6570\u636e\u96c6 - \u5de1\u5929",
+      "table_query_supported": true
+    },
+    {
+      "catalog_query_supported": true,
+      "catname": "ast3-2-image",
+      "datatype": "catalog,image",
+      "description_en": "",
+      "description_zh": "",
+      "downloadlink": "https://casdc.china-vo.org/archive/AST3-2/image/",
+      "file_download": {
+        "batch_download_endpoint": "/query/openapi/catalogs/ast3-2-image/download",
+        "categories": [
+          "i",
+          "m",
+          "g"
+        ],
+        "id_source": {
+          "column": null,
+          "parameter": "id",
+          "result_field": null,
+          "table": null
+        },
+        "single_file_endpoint": "/query/openapi/catalogs/ast3-2-image/file",
+        "single_file_query_by_category": {
+          "g": {
+            "category": "g"
+          },
+          "i": {
+            "category": "i"
+          },
+          "m": {
+            "category": "m"
+          }
+        },
+        "supported": true
+      },
+      "file_download_supported": true,
+      "intro_en": "/article/20150915162302",
+      "intro_zh": "/article/20150915162031",
+      "officiallink": "",
+      "parent_catname": "ast3-2",
+      "queryable": true,
+      "shortname": "AST3 DR2 Image",
+      "showname_en": "Antarctic AST3 Telescope DR2 - Image",
+      "showname_zh": "\u5357\u6781AST3\u671b\u8fdc\u955c\u6570\u636e\u96c6 - \u56fe\u50cf",
+      "table_query_supported": true
+    },
+    {
+      "catalog_query_supported": true,
+      "catname": "ast3-2-lc",
+      "datatype": "catalog,lightcurve",
+      "description_en": "&gt;&gt;&gt; <a href=\"https://nadc.china-vo.org/data/article/20180405011930\" style=\"color:#f00;\">Download all light curves in each field</a>",
+      "description_zh": "&gt;&gt;&gt; <a href=\"https://nadc.china-vo.org/data/article/20180405011930\" style=\"color:#f00;\">Download all light curves in each field</a>",
+      "downloadlink": "https://nadc.china-vo.org/data/article/20180405011930",
+      "file_download": {
+        "batch_download_endpoint": "/query/openapi/catalogs/ast3-2-lc/download",
+        "categories": [
+          "png",
+          "fits",
+          "csv",
+          "vot"
+        ],
+        "id_source": {
+          "column": null,
+          "parameter": "id",
+          "result_field": null,
+          "table": null
+        },
+        "single_file_endpoint": "/query/openapi/catalogs/ast3-2-lc/file",
+        "single_file_query_by_category": {
+          "csv": {
+            "category": "csv"
+          },
+          "fits": {
+            "category": "fits"
+          },
+          "png": {
+            "category": "png"
+          },
+          "vot": {
+            "category": "vot"
+          }
+        },
+        "supported": true
+      },
+      "file_download_supported": true,
+      "intro_en": "/article/20150915162302",
+      "intro_zh": "/article/20150915162031",
+      "officiallink": "",
+      "parent_catname": "ast3-2",
+      "queryable": true,
+      "shortname": "AST3 DR2 Light Curve",
+      "showname_en": "Antarctic AST3 Telescope Data DR2 - Light Curve",
+      "showname_zh": "\u5357\u6781AST3\u671b\u8fdc\u955c\u6570\u636e\u96c6 - \u5149\u53d8\u66f2\u7ebf",
+      "table_query_supported": true
+    },
+    {
+      "catalog_query_supported": true,
+      "catname": "ast3-field",
+      "datatype": "catalog,image",
+      "description_en": "",
+      "description_zh": "",
+      "downloadlink": "",
+      "file_download": {
+        "batch_download_endpoint": "/query/openapi/catalogs/ast3-field/download",
+        "categories": [
+          "img",
+          "cat"
+        ],
+        "id_source": {
+          "column": null,
+          "parameter": "id",
+          "result_field": null,
+          "table": null
+        },
+        "single_file_endpoint": "/query/openapi/catalogs/ast3-field/file",
+        "single_file_query_by_category": {
+          "cat": {
+            "category": "cat"
+          },
+          "img": {
+            "category": "img"
+          }
+        },
+        "supported": true
+      },
+      "file_download_supported": true,
+      "intro_en": "/article/20150915162302",
+      "intro_zh": "/article/20150915162031",
+      "officiallink": "",
+      "parent_catname": "ast3",
+      "queryable": true,
+      "shortname": "AST3 Image",
+      "showname_en": "Antarctic AST3 Telescope Data - Image",
+      "showname_zh": "\u5357\u6781AST3\u671b\u8fdc\u955c\u6570\u636e\u96c6 - \u56fe\u50cf",
+      "table_query_supported": true
+    },
+    {
+      "catalog_query_supported": true,
+      "catname": "ast3-lc",
+      "datatype": "catalog,lightcurve",
+      "description_en": "&gt;&gt;&gt; <a href=\"https://nadc.china-vo.org/data/article/20180405011930\" style=\"color:#f00;\">Download all light curves in each field</a>",
+      "description_zh": "&gt;&gt;&gt; <a href=\"https://nadc.china-vo.org/data/article/20180405011930\" style=\"color:#f00;\">Download all light curves in each field</a>",
+      "downloadlink": "https://nadc.china-vo.org/data/article/20180405011930",
+      "file_download": {
+        "batch_download_endpoint": "/query/openapi/catalogs/ast3-lc/download",
+        "categories": [
+          "png",
+          "fits",
+          "csv",
+          "vot"
+        ],
+        "id_source": {
+          "column": null,
+          "parameter": "id",
+          "result_field": null,
+          "table": null
+        },
+        "single_file_endpoint": "/query/openapi/catalogs/ast3-lc/file",
+        "single_file_query_by_category": {
+          "csv": {
+            "category": "csv"
+          },
+          "fits": {
+            "category": "fits"
+          },
+          "png": {
+            "category": "png"
+          },
+          "vot": {
+            "category": "vot"
+          }
+        },
+        "supported": true
+      },
+      "file_download_supported": true,
+      "intro_en": "/article/20150915162302",
+      "intro_zh": "/article/20150915162031",
+      "officiallink": "",
+      "parent_catname": "ast3",
+      "queryable": true,
+      "shortname": "AST3 Light Curve",
+      "showname_en": "Antarctic AST3 Telescope Data - Light Curve",
+      "showname_zh": "\u5357\u6781AST3\u671b\u8fdc\u955c\u6570\u636e\u96c6 - \u5149\u53d8\u66f2\u7ebf",
+      "table_query_supported": true
+    },
+    {
+      "catalog_query_supported": true,
+      "catname": "ast3-survey",
+      "datatype": "catalog",
+      "description_en": "&gt;&gt;&gt; <a href=\"https://nadc.china-vo.org/data/article/20180405013715\" style=\"color:#f00;\">Download Survey Catalog</a>",
+      "description_zh": "&gt;&gt;&gt; <a href=\"https://nadc.china-vo.org/data/article/20180405013715\" style=\"color:#f00;\">Download Survey Catalog</a>",
+      "downloadlink": "https://nadc.china-vo.org/data/article/20180405013715",
+      "file_download": {
+        "batch_download_endpoint": null,
+        "categories": [],
+        "id_source": null,
+        "single_file_endpoint": null,
+        "single_file_query_by_category": {},
+        "supported": false
+      },
+      "file_download_supported": false,
+      "intro_en": "/article/20150915162302",
+      "intro_zh": "/article/20150915162031",
+      "officiallink": "",
+      "parent_catname": "ast3",
+      "queryable": true,
+      "shortname": "AST3 Survey",
+      "showname_en": "Antarctic AST3 Telescope Data - Survey",
+      "showname_zh": "\u5357\u6781AST3\u671b\u8fdc\u955c\u6570\u636e\u96c6 - \u5de1\u5929",
+      "table_query_supported": true
+    },
+    {
+      "catalog_query_supported": false,
+      "catname": "bassdr1",
+      "datatype": "catalog,image",
+      "description_en": "&gt;&gt;&gt;  <a href=\"http://batc.bao.ac.cn/BASS/doku.php?id=datarelease:dr1:home\">Official Site</a> &gt;&gt;&gt; <a href=\"http://casdc.china-vo.org/archive/BASS/DR1/coadded-catalogs/\">Download Co-addition Catalog</a>",
+      "description_zh": "&gt;&gt;&gt;  <a href=\"http://batc.bao.ac.cn/BASS/doku.php?id=datarelease:dr1:home\">Official Site</a> &gt;&gt;&gt; <a href=\"http://casdc.china-vo.org/archive/BASS/DR1/coadded-catalogs/\">Download Co-addition Catalog</a>",
+      "downloadlink": "http://casdc.china-vo.org/archive/BASS/DR1/coadded-catalogs/",
+      "file_download": {
+        "batch_download_endpoint": null,
+        "categories": [],
+        "id_source": null,
+        "single_file_endpoint": null,
+        "single_file_query_by_category": {},
+        "supported": false
+      },
+      "file_download_supported": false,
+      "intro_en": null,
+      "intro_zh": null,
+      "officiallink": "http://batc.bao.ac.cn/BASS/doku.php?id=datarelease:dr1:home",
+      "parent_catname": null,
+      "queryable": false,
+      "shortname": "BASS DR1",
+      "showname_en": "Beijing-Arizona Sky Survey DR1",
+      "showname_zh": "Beijing-Arizona Sky Survey DR1",
+      "table_query_supported": false
+    },
+    {
+      "catalog_query_supported": true,
+      "catname": "bassdr1gradd",
+      "datatype": "catalog",
+      "description_en": "&gt;&gt;&gt;  <a href=\"http://batc.bao.ac.cn/BASS/doku.php?id=datarelease:dr1:home\">Official Site</a> &gt;&gt;&gt; <a href=\"http://casdc.china-vo.org/archive/BASS/DR1/coadded-catalogs/\">Download Co-addition Catalog</a>",
+      "description_zh": "&gt;&gt;&gt;  <a href=\"http://batc.bao.ac.cn/BASS/doku.php?id=datarelease:dr1:home\">Official Site</a> &gt;&gt;&gt; <a href=\"http://casdc.china-vo.org/archive/BASS/DR1/coadded-catalogs/\">Download Co-addition Catalog</a>",
+      "downloadlink": "http://casdc.china-vo.org/archive/BASS/DR1/coadded-catalogs/",
+      "file_download": {
+        "batch_download_endpoint": null,
+        "categories": [],
+        "id_source": null,
+        "single_file_endpoint": null,
+        "single_file_query_by_category": {},
+        "supported": false
+      },
+      "file_download_supported": false,
+      "intro_en": "/article/20150916100437",
+      "intro_zh": "/article/20150916100437",
+      "officiallink": "http://batc.bao.ac.cn/BASS/doku.php?id=datarelease:dr1:home",
+      "parent_catname": "bassdr1",
+      "queryable": true,
+      "shortname": "BASS DR1 gradd",
+      "showname_en": "Beijing-Arizona Sky Survey DR1 gradd",
+      "showname_zh": "Beijing-Arizona Sky Survey DR1 gradd",
+      "table_query_supported": true
+    },
+    {
+      "catalog_query_supported": true,
+      "catname": "bassdr1images",
+      "datatype": "catalog,image",
+      "description_en": "&gt;&gt;&gt;  <a href=\"http://batc.bao.ac.cn/BASS/doku.php?id=datarelease:dr1:home\">Official Site</a> &gt;&gt;&gt; <a href=\"http://casdc.china-vo.org/archive/BASS/DR1/single-epoch-images/\">Download Images</a>",
+      "description_zh": "&gt;&gt;&gt;  <a href=\"http://batc.bao.ac.cn/BASS/doku.php?id=datarelease:dr1:home\">Official Site</a> &gt;&gt;&gt; <a href=\"http://casdc.china-vo.org/archive/BASS/DR1/single-epoch-images/\">Download Images</a>",
+      "downloadlink": "http://casdc.china-vo.org/archive/BASS/DR1/single-epoch-images/",
+      "file_download": {
+        "batch_download_endpoint": "/query/openapi/catalogs/bassdr1images/download",
+        "categories": [
+          "i",
+          "m",
+          "g"
+        ],
+        "id_source": {
+          "column": null,
+          "parameter": "id",
+          "result_field": null,
+          "table": null
+        },
+        "single_file_endpoint": "/query/openapi/catalogs/bassdr1images/file",
+        "single_file_query_by_category": {
+          "g": {
+            "category": "g"
+          },
+          "i": {
+            "category": "i"
+          },
+          "m": {
+            "category": "m"
+          }
+        },
+        "supported": true
+      },
+      "file_download_supported": true,
+      "intro_en": "/article/20150916100437",
+      "intro_zh": "/article/20150916100437",
+      "officiallink": "http://batc.bao.ac.cn/BASS/doku.php?id=datarelease:dr1:home",
+      "parent_catname": "bassdr1",
+      "queryable": true,
+      "shortname": "BASS DR1 Images",
+      "showname_en": "Beijing-Arizona Sky Survey DR1 Images",
+      "showname_zh": "Beijing-Arizona Sky Survey DR1 Images",
+      "table_query_supported": true
+    },
+    {
+      "catalog_query_supported": true,
+      "catname": "bassdr2coadd",
+      "datatype": "catalog",
+      "description_en": "&gt;&gt;&gt;  <a href=\"http://batc.bao.ac.cn/BASS/doku.php?id=datarelease:dr2:home\">Official Site</a>",
+      "description_zh": "&gt;&gt;&gt;  <a href=\"http://batc.bao.ac.cn/BASS/doku.php?id=datarelease:dr2:home\">Official Site</a>",
+      "downloadlink": "https://casdc.china-vo.org/archive/BASS/DR2/coadded-catalogs/",
+      "file_download": {
+        "batch_download_endpoint": null,
+        "categories": [],
+        "id_source": null,
+        "single_file_endpoint": null,
+        "single_file_query_by_category": {},
+        "supported": false
+      },
+      "file_download_supported": false,
+      "intro_en": "/article/20190723135516",
+      "intro_zh": "/article/20190723135516",
+      "officiallink": "http://batc.bao.ac.cn/BASS/doku.php?id=datarelease:dr2:home",
+      "parent_catname": "bassdr2",
+      "queryable": true,
+      "shortname": "BASS DR2 gradd",
+      "showname_en": "Beijing-Arizona Sky Survey DR2 gradd",
+      "showname_zh": "Beijing-Arizona Sky Survey DR2 gradd",
+      "table_query_supported": true
+    },
+    {
+      "catalog_query_supported": true,
+      "catname": "bassdr2images",
+      "datatype": "catalog,image",
+      "description_en": "&gt;&gt;&gt;  <a href=\"http://batc.bao.ac.cn/BASS/doku.php?id=datarelease:dr2:home\">Official Site</a>",
+      "description_zh": "&gt;&gt;&gt;  <a href=\"http://batc.bao.ac.cn/BASS/doku.php?id=datarelease:dr2:home\">Official Site</a>",
+      "downloadlink": "",
+      "file_download": {
+        "batch_download_endpoint": "/query/openapi/catalogs/bassdr2images/download",
+        "categories": [
+          "i",
+          "m",
+          "g"
+        ],
+        "id_source": {
+          "column": null,
+          "parameter": "id",
+          "result_field": null,
+          "table": null
+        },
+        "single_file_endpoint": "/query/openapi/catalogs/bassdr2images/file",
+        "single_file_query_by_category": {
+          "g": {
+            "category": "g"
+          },
+          "i": {
+            "category": "i"
+          },
+          "m": {
+            "category": "m"
+          }
+        },
+        "supported": true
+      },
+      "file_download_supported": true,
+      "intro_en": "/article/20190723135516",
+      "intro_zh": "/article/20190723135516",
+      "officiallink": "http://batc.bao.ac.cn/BASS/doku.php?id=datarelease:dr2:home",
+      "parent_catname": "bassdr2",
+      "queryable": true,
+      "shortname": "BASS DR2 Images",
+      "showname_en": "Beijing-Arizona Sky Survey DR2 Images",
+      "showname_zh": "Beijing-Arizona Sky Survey DR2 Images",
+      "table_query_supported": true
+    },
+    {
+      "catalog_query_supported": true,
+      "catname": "bassdr2stack",
+      "datatype": "catalog,image",
+      "description_en": "&gt;&gt;&gt;  <a href=\"http://batc.bao.ac.cn/BASS/doku.php?id=datarelease:dr2:home\">Official Site</a>",
+      "description_zh": "&gt;&gt;&gt;  <a href=\"http://batc.bao.ac.cn/BASS/doku.php?id=datarelease:dr2:home\">Official Site</a>",
+      "downloadlink": "",
+      "file_download": {
+        "batch_download_endpoint": "/query/openapi/catalogs/bassdr2stack/download",
+        "categories": [
+          "i",
+          "m",
+          "g"
+        ],
+        "id_source": {
+          "column": null,
+          "parameter": "id",
+          "result_field": null,
+          "table": null
+        },
+        "single_file_endpoint": "/query/openapi/catalogs/bassdr2stack/file",
+        "single_file_query_by_category": {
+          "g": {
+            "category": "g"
+          },
+          "i": {
+            "category": "i"
+          },
+          "m": {
+            "category": "m"
+          }
+        },
+        "supported": true
+      },
+      "file_download_supported": true,
+      "intro_en": "/article/20190723135516",
+      "intro_zh": "/article/20190723135516",
+      "officiallink": "http://batc.bao.ac.cn/BASS/doku.php?id=datarelease:dr2:home",
+      "parent_catname": "bassdr2",
+      "queryable": true,
+      "shortname": "BASS DR2 Stack",
+      "showname_en": "Beijing-Arizona Sky Survey DR2 Stack",
+      "showname_zh": "Beijing-Arizona Sky Survey DR2 Stack",
+      "table_query_supported": true
+    },
+    {
+      "catalog_query_supported": true,
+      "catname": "bassdr3coadd",
+      "datatype": "catalog",
+      "description_en": "&gt;&gt;&gt;  <a href=\"http://batc.bao.ac.cn/BASS/doku.php?id=datarelease:dr3:home\">Official Site</a>",
+      "description_zh": "&gt;&gt;&gt;  <a href=\"http://batc.bao.ac.cn/BASS/doku.php?id=datarelease:dr3:home\">Official Site</a>",
+      "downloadlink": "https://casdc.china-vo.org/archive/BASS/DR3/coadd_cat/",
+      "file_download": {
+        "batch_download_endpoint": null,
+        "categories": [],
+        "id_source": null,
+        "single_file_endpoint": null,
+        "single_file_query_by_category": {},
+        "supported": false
+      },
+      "file_download_supported": false,
+      "intro_en": "/article/20190723135548",
+      "intro_zh": "/article/20190723135548",
+      "officiallink": "http://batc.bao.ac.cn/BASS/doku.php?id=datarelease:dr3:home",
+      "parent_catname": "bassdr3",
+      "queryable": true,
+      "shortname": "BASS DR3 coadd",
+      "showname_en": "Beijing-Arizona Sky Survey DR3 Coadded Catalog",
+      "showname_zh": "Beijing-Arizona Sky Survey DR3 Coadded Catalog",
+      "table_query_supported": true
+    },
+    {
+      "catalog_query_supported": true,
+      "catname": "bassdr3images",
+      "datatype": "catalog,image",
+      "description_en": "&gt;&gt;&gt;  <a href=\"http://batc.bao.ac.cn/BASS/doku.php?id=datarelease:dr3:home\">Official Site</a>",
+      "description_zh": "&gt;&gt;&gt;  <a href=\"http://batc.bao.ac.cn/BASS/doku.php?id=datarelease:dr3:home\">Official Site</a>",
+      "downloadlink": "https://casdc.china-vo.org/archive/BASS/DR3/single_image/",
+      "file_download": {
+        "batch_download_endpoint": null,
+        "categories": [],
+        "id_source": null,
+        "single_file_endpoint": null,
+        "single_file_query_by_category": {},
+        "supported": false
+      },
+      "file_download_supported": false,
+      "intro_en": "/article/20190723135548",
+      "intro_zh": "/article/20190723135548",
+      "officiallink": "http://batc.bao.ac.cn/BASS/doku.php?id=datarelease:dr3:home",
+      "parent_catname": "bassdr3",
+      "queryable": true,
+      "shortname": "BASS DR3 Images",
+      "showname_en": "Beijing-Arizona Sky Survey DR3 Images",
+      "showname_zh": "Beijing-Arizona Sky Survey DR3 Images",
+      "table_query_supported": true
+    },
+    {
+      "catalog_query_supported": true,
+      "catname": "bassdr3rawdata",
+      "datatype": "catalog,image",
+      "description_en": "&gt;&gt;&gt;  <a href=\"http://batc.bao.ac.cn/BASS/doku.php?id=datarelease:dr3:home\">Official Site</a>",
+      "description_zh": "&gt;&gt;&gt;  <a href=\"http://batc.bao.ac.cn/BASS/doku.php?id=datarelease:dr3:home\">Official Site</a>",
+      "downloadlink": "https://casdc.china-vo.org/archive/BASS/DR3/rawdata/",
+      "file_download": {
+        "batch_download_endpoint": null,
+        "categories": [],
+        "id_source": null,
+        "single_file_endpoint": null,
+        "single_file_query_by_category": {},
+        "supported": false
+      },
+      "file_download_supported": false,
+      "intro_en": "/article/20190723135548",
+      "intro_zh": "/article/20190723135548",
+      "officiallink": "http://batc.bao.ac.cn/BASS/doku.php?id=datarelease:dr3:home",
+      "parent_catname": "bassdr3",
+      "queryable": true,
+      "shortname": "BASS DR3 Rawdata",
+      "showname_en": "Beijing-Arizona Sky Survey DR3 Rawdata",
+      "showname_zh": "Beijing-Arizona Sky Survey DR3 Rawdata",
+      "table_query_supported": true
+    },
+    {
+      "catalog_query_supported": true,
+      "catname": "bassdr3stack",
+      "datatype": "catalog,image",
+      "description_en": "&gt;&gt;&gt;  <a href=\"http://batc.bao.ac.cn/BASS/doku.php?id=datarelease:dr3:home\">Official Site</a>",
+      "description_zh": "&gt;&gt;&gt;  <a href=\"http://batc.bao.ac.cn/BASS/doku.php?id=datarelease:dr3:home\">Official Site</a>",
+      "downloadlink": "https://nadc.china-vo.org/data/archive/BASS/DR3/stack/",
+      "file_download": {
+        "batch_download_endpoint": null,
+        "categories": [],
+        "id_source": null,
+        "single_file_endpoint": null,
+        "single_file_query_by_category": {},
+        "supported": false
+      },
+      "file_download_supported": false,
+      "intro_en": "/article/20190723135548",
+      "intro_zh": "/article/20190723135548",
+      "officiallink": "http://batc.bao.ac.cn/BASS/doku.php?id=datarelease:dr3:home",
+      "parent_catname": "bassdr3",
+      "queryable": true,
+      "shortname": "BASS DR3 Stack",
+      "showname_en": "Beijing-Arizona Sky Survey DR3 Stack",
+      "showname_zh": "Beijing-Arizona Sky Survey DR3 Stack",
+      "table_query_supported": true
+    },
+    {
+      "catalog_query_supported": true,
+      "catname": "gaiadr2-source",
+      "datatype": "catalog",
+      "description_en": "GAIA DR2 Source",
+      "description_zh": "GAIA DR2 Source",
+      "downloadlink": "https://nadc.china-vo.org/data/mirror/Gaia/dr2/",
+      "file_download": {
+        "batch_download_endpoint": null,
+        "categories": [],
+        "id_source": null,
+        "single_file_endpoint": null,
+        "single_file_query_by_category": {},
+        "supported": false
+      },
+      "file_download_supported": false,
+      "intro_en": "/article/20201207160816",
+      "intro_zh": "/article/20201207160816",
+      "officiallink": "https://www.cosmos.esa.int/web/gaia/dr2",
+      "parent_catname": null,
+      "queryable": true,
+      "shortname": "GAIA DR2 Source",
+      "showname_en": "GAIA DR2 Source",
+      "showname_zh": "GAIA DR2 Source",
+      "table_query_supported": true
+    },
+    {
+      "catalog_query_supported": true,
+      "catname": "gaiadr3-source",
+      "datatype": "catalog",
+      "description_en": "GAIA DR3 Source",
+      "description_zh": "GAIA DR3 Source",
+      "downloadlink": "https://nadc.china-vo.org/data/mirror/Gaia/dr3/",
+      "file_download": {
+        "batch_download_endpoint": null,
+        "categories": [],
+        "id_source": null,
+        "single_file_endpoint": null,
+        "single_file_query_by_category": {},
+        "supported": false
+      },
+      "file_download_supported": false,
+      "intro_en": "/article/20201207160904",
+      "intro_zh": "/article/20201207160904",
+      "officiallink": "https://www.cosmos.esa.int/web/gaia/dr3",
+      "parent_catname": null,
+      "queryable": true,
+      "shortname": "GAIA DR3 Source",
+      "showname_en": "GAIA DR3 Source",
+      "showname_zh": "GAIA DR3 Source",
+      "table_query_supported": true
+    },
+    {
+      "catalog_query_supported": true,
+      "catname": "gaiaedr3-source",
+      "datatype": "catalog",
+      "description_en": "GAIA EDR3 Source",
+      "description_zh": "GAIA EDR3 Source",
+      "downloadlink": "",
+      "file_download": {
+        "batch_download_endpoint": null,
+        "categories": [],
+        "id_source": null,
+        "single_file_endpoint": null,
+        "single_file_query_by_category": {},
+        "supported": false
+      },
+      "file_download_supported": false,
+      "intro_en": "/article/20201207160904",
+      "intro_zh": "/article/20201207160904",
+      "officiallink": "https://www.cosmos.esa.int/web/gaia/earlydr3",
+      "parent_catname": null,
+      "queryable": true,
+      "shortname": "GAIA EDR3 Source",
+      "showname_en": "GAIA EDR3 Source",
+      "showname_zh": "GAIA EDR3 Source",
+      "table_query_supported": true
+    },
+    {
+      "catalog_query_supported": true,
+      "catname": "gmg240",
+      "datatype": "catalog,image",
+      "description_en": "",
+      "description_zh": "",
+      "downloadlink": "",
+      "file_download": {
+        "batch_download_endpoint": null,
+        "categories": [],
+        "id_source": null,
+        "single_file_endpoint": null,
+        "single_file_query_by_category": {},
+        "supported": false
+      },
+      "file_download_supported": false,
+      "intro_en": "/article/20150915165647",
+      "intro_zh": "/article/20150915165452",
+      "officiallink": "",
+      "parent_catname": null,
+      "queryable": true,
+      "shortname": "GMG2.4m",
+      "showname_en": "Lijiang 2.4m Telescope Data",
+      "showname_zh": "\u4e3d\u6c5f2.4\u7c73\u671b\u8fdc\u955c\u6570\u636e\u96c6",
+      "table_query_supported": true
+    },
+    {
+      "catalog_query_supported": true,
+      "catname": "gps1p",
+      "datatype": "catalog",
+      "description_en": "",
+      "description_zh": "",
+      "downloadlink": "",
+      "file_download": {
+        "batch_download_endpoint": null,
+        "categories": [],
+        "id_source": null,
+        "single_file_endpoint": null,
+        "single_file_query_by_category": {},
+        "supported": false
+      },
+      "file_download_supported": false,
+      "intro_en": "/article/20200615104229",
+      "intro_zh": "/article/20200615104229",
+      "officiallink": "",
+      "parent_catname": null,
+      "queryable": true,
+      "shortname": "GPS1 Plus",
+      "showname_en": "GPS1 Plus",
+      "showname_zh": "GPS1 Plus",
+      "table_query_supported": true
+    },
+    {
+      "catalog_query_supported": false,
+      "catname": "jplus",
+      "datatype": "catalog",
+      "description_en": null,
+      "description_zh": null,
+      "downloadlink": null,
+      "file_download": {
+        "batch_download_endpoint": null,
+        "categories": [],
+        "id_source": null,
+        "single_file_endpoint": null,
+        "single_file_query_by_category": {},
+        "supported": false
+      },
+      "file_download_supported": false,
+      "intro_en": null,
+      "intro_zh": null,
+      "officiallink": null,
+      "parent_catname": "sports",
+      "queryable": false,
+      "shortname": "JPLUS",
+      "showname_en": "JPLUS",
+      "showname_zh": "JPLUS",
+      "table_query_supported": false
+    },
+    {
+      "catalog_query_supported": false,
+      "catname": "lamost-qso",
+      "datatype": "catalog",
+      "description_en": null,
+      "description_zh": null,
+      "downloadlink": null,
+      "file_download": {
+        "batch_download_endpoint": null,
+        "categories": [],
+        "id_source": null,
+        "single_file_endpoint": null,
+        "single_file_query_by_category": {},
+        "supported": false
+      },
+      "file_download_supported": false,
+      "intro_en": null,
+      "intro_zh": null,
+      "officiallink": null,
+      "parent_catname": null,
+      "queryable": false,
+      "shortname": "LAMOST Quasar Catalog",
+      "showname_en": "LAMOST Quasar Catalog",
+      "showname_zh": "LAMOST Quasar Catalog",
+      "table_query_supported": false
+    },
+    {
+      "catalog_query_supported": true,
+      "catname": "lamost-quasar",
+      "datatype": "catalog",
+      "description_en": "",
+      "description_zh": "",
+      "downloadlink": "",
+      "file_download": {
+        "batch_download_endpoint": null,
+        "categories": [],
+        "id_source": null,
+        "single_file_endpoint": null,
+        "single_file_query_by_category": {},
+        "supported": false
+      },
+      "file_download_supported": false,
+      "intro_en": "/article/20190107155838",
+      "intro_zh": "/article/20190107155838",
+      "officiallink": "",
+      "parent_catname": "lamost-qso",
+      "queryable": true,
+      "shortname": "LAMOST Quasar Catalog",
+      "showname_en": "LAMOST Quasar Catalog",
+      "showname_zh": "LAMOST Quasar Catalog",
+      "table_query_supported": true
+    },
+    {
+      "catalog_query_supported": true,
+      "catname": "lamost-quasar-catalog-dr6-9",
+      "datatype": "catalog",
+      "description_en": "",
+      "description_zh": "",
+      "downloadlink": "",
+      "file_download": {
+        "batch_download_endpoint": null,
+        "categories": [],
+        "id_source": null,
+        "single_file_endpoint": null,
+        "single_file_query_by_category": {},
+        "supported": false
+      },
+      "file_download_supported": false,
+      "intro_en": "/article/20230111164332",
+      "intro_zh": "/article/20230111164332",
+      "officiallink": "",
+      "parent_catname": "lamost-qso",
+      "queryable": true,
+      "shortname": "LAMOST QSO Catalog DR6-9",
+      "showname_en": "LAMOST QSO Catalog DR6-9",
+      "showname_zh": "LAMOST QSO Catalog DR6-9",
+      "table_query_supported": true
+    },
+    {
+      "catalog_query_supported": true,
+      "catname": "legacysurvey9tractor",
+      "datatype": "catalog",
+      "description_en": "https://www.legacysurvey.org/dr9/description/",
+      "description_zh": "https://www.legacysurvey.org/dr9/description/",
+      "downloadlink": "https://159.226.170.25/mirror/DESIDR9/",
+      "file_download": {
+        "batch_download_endpoint": null,
+        "categories": [],
+        "id_source": null,
+        "single_file_endpoint": null,
+        "single_file_query_by_category": {},
+        "supported": false
+      },
+      "file_download_supported": false,
+      "intro_en": "https://www.legacysurvey.org/dr9/description/",
+      "intro_zh": "https://www.legacysurvey.org/dr9/description/",
+      "officiallink": "",
+      "parent_catname": "legacysurvey9",
+      "queryable": true,
+      "shortname": "LegacySurvey DR9 Tractor",
+      "showname_en": "LegacySurvey DR9 Tractor",
+      "showname_zh": "LegacySurvey DR9 Tractor",
+      "table_query_supported": true
+    },
+    {
+      "catalog_query_supported": true,
+      "catname": "lofre",
+      "datatype": "catalog,image",
+      "description_en": "Low Frequency Radio spectrum Explorer",
+      "description_zh": "\u660e\u5b89\u56fe(\u751a)\u4f4e\u9891\u5c04\u7535\u9891\u8c31\u4eea\u6570\u636e",
+      "downloadlink": "",
+      "file_download": {
+        "batch_download_endpoint": null,
+        "categories": [],
+        "id_source": null,
+        "single_file_endpoint": null,
+        "single_file_query_by_category": {},
+        "supported": false
+      },
+      "file_download_supported": false,
+      "intro_en": "/article/20201111090359",
+      "intro_zh": "/article/20201111090359",
+      "officiallink": "",
+      "parent_catname": null,
+      "queryable": true,
+      "shortname": "LoFRE",
+      "showname_en": "LoFRE",
+      "showname_zh": "LoFRE",
+      "table_query_supported": true
+    },
+    {
+      "catalog_query_supported": true,
+      "catname": "legacyplate-cat",
+      "datatype": null,
+      "description_en": null,
+      "description_zh": null,
+      "downloadlink": null,
+      "file_download": {
+        "batch_download_endpoint": null,
+        "categories": [],
+        "id_source": null,
+        "single_file_endpoint": null,
+        "single_file_query_by_category": {},
+        "supported": false
+      },
+      "file_download_supported": false,
+      "intro_en": "/article/20210126183718",
+      "intro_zh": "/article/20210126183718",
+      "officiallink": null,
+      "parent_catname": "legacyplate",
+      "queryable": true,
+      "shortname": "Legacy Plate Catalog",
+      "showname_en": "Legacy Plate Catalog",
+      "showname_zh": "Legacy Plate Catalog",
+      "table_query_supported": true
+    },
+    {
+      "catalog_query_supported": true,
+      "catname": "muser",
+      "datatype": "catalog",
+      "description_en": "",
+      "description_zh": "",
+      "downloadlink": "",
+      "file_download": {
+        "batch_download_endpoint": null,
+        "categories": [],
+        "id_source": null,
+        "single_file_endpoint": null,
+        "single_file_query_by_category": {},
+        "supported": false
+      },
+      "file_download_supported": false,
+      "intro_en": "/article/20190520103823",
+      "intro_zh": "/article/20190520103823",
+      "officiallink": "",
+      "parent_catname": null,
+      "queryable": true,
+      "shortname": "MUSER",
+      "showname_en": "MUSER",
+      "showname_zh": "MUSER",
+      "table_query_supported": true
+    },
+    {
+      "catalog_query_supported": false,
+      "catname": "panstarrs-dr1",
+      "datatype": "catalog",
+      "description_en": null,
+      "description_zh": null,
+      "downloadlink": null,
+      "file_download": {
+        "batch_download_endpoint": null,
+        "categories": [],
+        "id_source": null,
+        "single_file_endpoint": null,
+        "single_file_query_by_category": {},
+        "supported": false
+      },
+      "file_download_supported": false,
+      "intro_en": null,
+      "intro_zh": null,
+      "officiallink": null,
+      "parent_catname": null,
+      "queryable": false,
+      "shortname": "Pan-STARRS DR1",
+      "showname_en": "Pan-STARRS DR1",
+      "showname_zh": "Pan-STARRS DR1",
+      "table_query_supported": false
+    },
+    {
+      "catalog_query_supported": true,
+      "catname": "panstarrs-dr1-otmo",
+      "datatype": "catalog",
+      "description_en": "",
+      "description_zh": "",
+      "downloadlink": "",
+      "file_download": {
+        "batch_download_endpoint": null,
+        "categories": [],
+        "id_source": null,
+        "single_file_endpoint": null,
+        "single_file_query_by_category": {},
+        "supported": false
+      },
+      "file_download_supported": false,
+      "intro_en": "/article/20210918095042",
+      "intro_zh": "/article/20210918095042",
+      "officiallink": "",
+      "parent_catname": "panstarrs-dr1",
+      "queryable": true,
+      "shortname": "Pan-STARRS DR1 OTMO",
+      "showname_en": "Pan-STARRS DR1 OTMO",
+      "showname_zh": "Pan-STARRS DR1 OTMO",
+      "table_query_supported": true
+    },
+    {
+      "catalog_query_supported": true,
+      "catname": "panstarrs-dr1-stackobjthin",
+      "datatype": "catalog",
+      "description_en": "",
+      "description_zh": "",
+      "downloadlink": "",
+      "file_download": {
+        "batch_download_endpoint": null,
+        "categories": [],
+        "id_source": null,
+        "single_file_endpoint": null,
+        "single_file_query_by_category": {},
+        "supported": false
+      },
+      "file_download_supported": false,
+      "intro_en": "/article/20210918095105",
+      "intro_zh": "/article/20210918095105",
+      "officiallink": "",
+      "parent_catname": "panstarrs-dr1",
+      "queryable": true,
+      "shortname": "Pan-STARRS DR1 Stack Object Thin",
+      "showname_en": "Pan-STARRS DR1 Stack Object Thin",
+      "showname_zh": "Pan-STARRS DR1 Stack Object Thin",
+      "table_query_supported": true
+    },
+    {
+      "catalog_query_supported": true,
+      "catname": "sbrs",
+      "datatype": "catalog",
+      "description_en": "",
+      "description_zh": "",
+      "downloadlink": "",
+      "file_download": {
+        "batch_download_endpoint": null,
+        "categories": [],
+        "id_source": null,
+        "single_file_endpoint": null,
+        "single_file_query_by_category": {},
+        "supported": false
+      },
+      "file_download_supported": false,
+      "intro_en": "/article/20150915185844",
+      "intro_zh": "/article/20150915185109",
+      "officiallink": "",
+      "parent_catname": null,
+      "queryable": true,
+      "shortname": "SBRS",
+      "showname_en": "Solar Broad Band Spectrometer",
+      "showname_zh": "\u592a\u9633\u5c04\u7535\u5bbd\u5e26\u52a8\u6001\u9891\u8c31\u4eea",
+      "table_query_supported": true
+    },
+    {
+      "catalog_query_supported": true,
+      "catname": "scuss",
+      "datatype": "catalog,image",
+      "description_en": "&gt;&gt;&gt;  <a href=\"http://batc.bao.ac.cn/BASS/doku.php?id=home\">Official Site</a>",
+      "description_zh": "&gt;&gt;&gt;  <a href=\"http://batc.bao.ac.cn/BASS/doku.php?id=home\">Official Site</a>",
+      "downloadlink": "https://casdc.china-vo.org/archive/SCUSS/dr/images/",
+      "file_download": {
+        "batch_download_endpoint": null,
+        "categories": [],
+        "id_source": null,
+        "single_file_endpoint": null,
+        "single_file_query_by_category": {},
+        "supported": false
+      },
+      "file_download_supported": false,
+      "intro_en": "/article/20150915101104",
+      "intro_zh": "/article/20150915130618",
+      "officiallink": "http://batc.bao.ac.cn/BASS/doku.php?id=scuss:scuss",
+      "parent_catname": null,
+      "queryable": true,
+      "shortname": "SCUSS",
+      "showname_en": "The South Galactic Cap u-Band Sky Survey Data",
+      "showname_zh": "\u5357\u94f6\u51a0u\u6ce2\u6bb5\u5de1\u5929\u6570\u636e\u96c6",
+      "table_query_supported": true
+    },
+    {
+      "catalog_query_supported": false,
+      "catname": "scuss-cat",
+      "datatype": "catalog",
+      "description_en": "&gt;&gt;&gt;  <a href=\"http://batc.bao.ac.cn/BASS/doku.php?id=home\">Official Site</a>",
+      "description_zh": "&gt;&gt;&gt;  <a href=\"http://batc.bao.ac.cn/BASS/doku.php?id=home\">Official Site</a>",
+      "downloadlink": "https://casdc.china-vo.org/archive/SCUSS/dr/catalog/",
+      "file_download": {
+        "batch_download_endpoint": null,
+        "categories": [],
+        "id_source": null,
+        "single_file_endpoint": null,
+        "single_file_query_by_category": {},
+        "supported": false
+      },
+      "file_download_supported": false,
+      "intro_en": "/article/20150915101104",
+      "intro_zh": "/article/20150915130618",
+      "officiallink": "http://batc.bao.ac.cn/BASS/doku.php?id=scuss:scuss",
+      "parent_catname": "scuss",
+      "queryable": false,
+      "shortname": "SCUSS Catalog",
+      "showname_en": "The South Galactic Cap u-Band Sky Survey Data - Main Catalogue",
+      "showname_zh": "\u5357\u94f6\u51a0u\u6ce2\u6bb5\u5de1\u5929\u6570\u636e\u96c6 - \u4e3b\u661f\u8868",
+      "table_query_supported": false
+    },
+    {
+      "catalog_query_supported": true,
+      "catname": "scuss-image",
+      "datatype": "catalog,image",
+      "description_en": "&gt;&gt;&gt;  <a href=\"http://batc.bao.ac.cn/BASS/doku.php?id=home\">Official Site</a>",
+      "description_zh": "&gt;&gt;&gt;  <a href=\"http://batc.bao.ac.cn/BASS/doku.php?id=home\">Official Site</a>",
+      "downloadlink": "https://casdc.china-vo.org/archive/SCUSS/dr/images/",
+      "file_download": {
+        "batch_download_endpoint": "/query/openapi/catalogs/scuss-image/download",
+        "categories": [
+          "png",
+          "fits"
+        ],
+        "id_source": {
+          "column": "id",
+          "parameter": "id",
+          "result_field": "image_id",
+          "table": "scuss.image"
+        },
+        "single_file_endpoint": "/query/openapi/catalogs/scuss-image/file",
+        "single_file_query_by_category": {
+          "fits": {
+            "ext": "fits",
+            "path": "fits"
+          },
+          "png": {
+            "ext": "png",
+            "path": "png"
+          }
+        },
+        "supported": true
+      },
+      "file_download_supported": true,
+      "intro_en": "/article/20150915101104",
+      "intro_zh": "/article/20150915130618",
+      "officiallink": "http://batc.bao.ac.cn/BASS/doku.php?id=scuss:scuss",
+      "parent_catname": "scuss",
+      "queryable": true,
+      "shortname": "SCUSS Image",
+      "showname_en": "The South Galactic Cap u-Band Sky Survey Data - Image",
+      "showname_zh": "\u5357\u94f6\u51a0u\u6ce2\u6bb5\u5de1\u5929\u6570\u636e\u96c6 - \u56fe\u50cf",
+      "table_query_supported": true
+    },
+    {
+      "catalog_query_supported": true,
+      "catname": "scuss-proper-motion",
+      "datatype": "catalog",
+      "description_en": "&gt;&gt;&gt;  <a href=\"http://batc.bao.ac.cn/BASS/doku.php?id=home\">Official Site</a>",
+      "description_zh": "&gt;&gt;&gt;  <a href=\"http://batc.bao.ac.cn/BASS/doku.php?id=home\">Official Site</a>",
+      "downloadlink": "https://casdc.china-vo.org/archive/SCUSS/dr/proper_motion/",
+      "file_download": {
+        "batch_download_endpoint": null,
+        "categories": [],
+        "id_source": null,
+        "single_file_endpoint": null,
+        "single_file_query_by_category": {},
+        "supported": false
+      },
+      "file_download_supported": false,
+      "intro_en": "/article/20150915101104",
+      "intro_zh": "/article/20150915130618",
+      "officiallink": "http://batc.bao.ac.cn/BASS/doku.php?id=scuss:scuss",
+      "parent_catname": "scuss",
+      "queryable": true,
+      "shortname": "SCUSS Proper Motion",
+      "showname_en": "The South Galactic Cap u-Band Sky Survey Data - ProperMotion",
+      "showname_zh": "\u5357\u94f6\u51a0u\u6ce2\u6bb5\u5de1\u5929\u6570\u636e\u96c6 - \u81ea\u884c\u661f\u8868",
+      "table_query_supported": true
+    },
+    {
+      "catalog_query_supported": true,
+      "catname": "sedr5",
+      "datatype": "catalog,spectrum",
+      "description_en": "&gt;&gt;&gt; <a href=\"http://dr5.lamost.org/sedr5/\">Data Description</a>",
+      "description_zh": "&gt;&gt;&gt; <a href=\"http://dr5.lamost.org/sedr5/\">Data Description</a>",
+      "downloadlink": "",
+      "file_download": {
+        "batch_download_endpoint": null,
+        "categories": [],
+        "id_source": null,
+        "single_file_endpoint": null,
+        "single_file_query_by_category": {},
+        "supported": false
+      },
+      "file_download_supported": false,
+      "intro_en": "/article/20210608155624",
+      "intro_zh": "/article/20210608155624",
+      "officiallink": "http://dr5.lamost.org/sedr5/",
+      "parent_catname": null,
+      "queryable": true,
+      "shortname": "SEDR5",
+      "showname_en": "SEDR5",
+      "showname_zh": "SEDR5",
+      "table_query_supported": true
+    },
+    {
+      "catalog_query_supported": true,
+      "catname": "skymapper2",
+      "datatype": "catalog",
+      "description_en": "",
+      "description_zh": "",
+      "downloadlink": "",
+      "file_download": {
+        "batch_download_endpoint": null,
+        "categories": [],
+        "id_source": null,
+        "single_file_endpoint": null,
+        "single_file_query_by_category": {},
+        "supported": false
+      },
+      "file_download_supported": false,
+      "intro_en": "/article/20210918095129",
+      "intro_zh": "/article/20210918095129",
+      "officiallink": "http://skymapper.anu.edu.au/table-browser/",
+      "parent_catname": null,
+      "queryable": true,
+      "shortname": "SkyMapper DR2",
+      "showname_en": "SkyMapper DR2",
+      "showname_zh": "SkyMapper DR2",
+      "table_query_supported": true
+    },
+    {
+      "catalog_query_supported": false,
+      "catname": "smss",
+      "datatype": "catalog",
+      "description_en": null,
+      "description_zh": null,
+      "downloadlink": null,
+      "file_download": {
+        "batch_download_endpoint": null,
+        "categories": [],
+        "id_source": null,
+        "single_file_endpoint": null,
+        "single_file_query_by_category": {},
+        "supported": false
+      },
+      "file_download_supported": false,
+      "intro_en": null,
+      "intro_zh": null,
+      "officiallink": null,
+      "parent_catname": "sports",
+      "queryable": false,
+      "shortname": "SMSS",
+      "showname_en": "SMSS",
+      "showname_zh": "SMSS",
+      "table_query_supported": false
+    },
+    {
+      "catalog_query_supported": false,
+      "catname": "splus",
+      "datatype": "catalog",
+      "description_en": null,
+      "description_zh": null,
+      "downloadlink": null,
+      "file_download": {
+        "batch_download_endpoint": null,
+        "categories": [],
+        "id_source": null,
+        "single_file_endpoint": null,
+        "single_file_query_by_category": {},
+        "supported": false
+      },
+      "file_download_supported": false,
+      "intro_en": null,
+      "intro_zh": null,
+      "officiallink": null,
+      "parent_catname": "sports",
+      "queryable": false,
+      "shortname": "SPLUS",
+      "showname_en": "SPLUS",
+      "showname_zh": "SPLUS",
+      "table_query_supported": false
+    },
+    {
+      "catalog_query_supported": false,
+      "catname": "sports",
+      "datatype": "catalog",
+      "description_en": null,
+      "description_zh": null,
+      "downloadlink": null,
+      "file_download": {
+        "batch_download_endpoint": null,
+        "categories": [],
+        "id_source": null,
+        "single_file_endpoint": null,
+        "single_file_query_by_category": {},
+        "supported": false
+      },
+      "file_download_supported": false,
+      "intro_en": null,
+      "intro_zh": null,
+      "officiallink": null,
+      "parent_catname": null,
+      "queryable": false,
+      "shortname": "SPORTS",
+      "showname_en": "SPORTS",
+      "showname_zh": "SPORTS",
+      "table_query_supported": false
+    },
+    {
+      "catalog_query_supported": true,
+      "catname": "twomass",
+      "datatype": "catalog",
+      "description_en": "",
+      "description_zh": "",
+      "downloadlink": "http://casdc.china-vo.org/mirror/2MASS/Release/",
+      "file_download": {
+        "batch_download_endpoint": null,
+        "categories": [],
+        "id_source": null,
+        "single_file_endpoint": null,
+        "single_file_query_by_category": {},
+        "supported": false
+      },
+      "file_download_supported": false,
+      "intro_en": "/article/20150915190829",
+      "intro_zh": "/article/20150915190829",
+      "officiallink": "",
+      "parent_catname": null,
+      "queryable": true,
+      "shortname": "TwoMass",
+      "showname_en": "TwoMass",
+      "showname_zh": "TwoMass",
+      "table_query_supported": true
+    },
+    {
+      "catalog_query_supported": true,
+      "catname": "ucac",
+      "datatype": "catalog",
+      "description_en": "",
+      "description_zh": "",
+      "downloadlink": "http://casdc.china-vo.org/mirror/UCAC/",
+      "file_download": {
+        "batch_download_endpoint": null,
+        "categories": [],
+        "id_source": null,
+        "single_file_endpoint": null,
+        "single_file_query_by_category": {},
+        "supported": false
+      },
+      "file_download_supported": false,
+      "intro_en": "/article/20150915191131",
+      "intro_zh": "/article/20150915191131",
+      "officiallink": "",
+      "parent_catname": null,
+      "queryable": true,
+      "shortname": "UCAC",
+      "showname_en": "UCAC",
+      "showname_zh": "UCAC",
+      "table_query_supported": true
+    },
+    {
+      "catalog_query_supported": true,
+      "catname": "wide-binary",
+      "datatype": "catalog",
+      "description_en": "",
+      "description_zh": "",
+      "downloadlink": "",
+      "file_download": {
+        "batch_download_endpoint": null,
+        "categories": [],
+        "id_source": null,
+        "single_file_endpoint": null,
+        "single_file_query_by_category": {},
+        "supported": false
+      },
+      "file_download_supported": false,
+      "intro_en": "/article/20200615103427",
+      "intro_zh": "/article/20200615103427",
+      "officiallink": "",
+      "parent_catname": null,
+      "queryable": true,
+      "shortname": "Wide Binary",
+      "showname_en": "Wide Binary",
+      "showname_zh": "Wide Binary",
+      "table_query_supported": true
+    },
+    {
+      "catalog_query_supported": true,
+      "catname": "wise",
+      "datatype": "catalog",
+      "description_en": "",
+      "description_zh": "",
+      "downloadlink": "http://casdc.china-vo.org/mirror/WISE/",
+      "file_download": {
+        "batch_download_endpoint": null,
+        "categories": [],
+        "id_source": null,
+        "single_file_endpoint": null,
+        "single_file_query_by_category": {},
+        "supported": false
+      },
+      "file_download_supported": false,
+      "intro_en": "/article/20150915190912",
+      "intro_zh": "/article/20150915190912",
+      "officiallink": "",
+      "parent_catname": null,
+      "queryable": true,
+      "shortname": "WISE",
+      "showname_en": "WISE",
+      "showname_zh": "WISE",
+      "table_query_supported": true
+    },
+    {
+      "catalog_query_supported": true,
+      "catname": "cstar",
+      "datatype": "catalog,image,lightcurve",
+      "description_en": null,
+      "description_zh": null,
+      "downloadlink": null,
+      "file_download": {
+        "batch_download_endpoint": "/query/openapi/catalogs/cstar/download",
+        "categories": [
+          "fits",
+          "fig",
+          "ghost-fits",
+          "ghost-fig",
+          "diurnal-fits",
+          "diurnal-fig"
+        ],
+        "id_source": {
+          "column": null,
+          "parameter": "id",
+          "result_field": null,
+          "table": null
+        },
+        "single_file_endpoint": "/query/openapi/catalogs/cstar/file",
+        "single_file_query_by_category": {
+          "diurnal-fig": {
+            "category": "diurnal-fig"
+          },
+          "diurnal-fits": {
+            "category": "diurnal-fits"
+          },
+          "fig": {
+            "category": "fig"
+          },
+          "fits": {
+            "category": "fits"
+          },
+          "ghost-fig": {
+            "category": "ghost-fig"
+          },
+          "ghost-fits": {
+            "category": "ghost-fits"
+          }
+        },
+        "supported": true
+      },
+      "file_download_supported": true,
+      "intro_en": "/article/20150915131657",
+      "intro_zh": "/article/20150915131447",
+      "officiallink": null,
+      "parent_catname": null,
+      "queryable": true,
+      "shortname": "CSTAR",
+      "showname_en": "Chinese Small Telescope ARray Catalog",
+      "showname_zh": "\u4e2d\u56fd\u4e4b\u661f\u5c0f\u671b\u8fdc\u955c\u9635\u5929\u4f53\u6d4b\u5149\u661f\u8868",
+      "table_query_supported": true
+    },
+    {
+      "catalog_query_supported": true,
+      "catname": "SAGES-StellarParameters",
+      "datatype": "catalog",
+      "description_en": null,
+      "description_zh": null,
+      "downloadlink": "https://casdc.china-vo.org/archive/SAGES-StellarParameters/",
+      "file_download": {
+        "batch_download_endpoint": null,
+        "categories": [],
+        "id_source": null,
+        "single_file_endpoint": null,
+        "single_file_query_by_category": {},
+        "supported": false
+      },
+      "file_download_supported": false,
+      "intro_en": null,
+      "intro_zh": null,
+      "officiallink": "https://nadc.china-vo.org/res/r100876/",
+      "parent_catname": "SAGES-DR1",
+      "queryable": true,
+      "shortname": "SAGES-StellarParameters",
+      "showname_en": "SAGES-StellarParameters",
+      "showname_zh": "SAGES\u5de1\u5929\u7b2c\u4e00\u6b21\u6570\u636e\u53d1\u5e03\u53ca\u5176\u589e\u8865",
+      "table_query_supported": true
+    },
+    {
+      "catalog_query_supported": true,
+      "catname": "SAGES-DR1",
+      "datatype": "catalog",
+      "description_en": null,
+      "description_zh": null,
+      "downloadlink": "https://casdc.china-vo.org/archive/SAGES-DR1/",
+      "file_download": {
+        "batch_download_endpoint": null,
+        "categories": [],
+        "id_source": null,
+        "single_file_endpoint": null,
+        "single_file_query_by_category": {},
+        "supported": false
+      },
+      "file_download_supported": false,
+      "intro_en": null,
+      "intro_zh": null,
+      "officiallink": "https://nadc.china-vo.org/res/r100876/",
+      "parent_catname": null,
+      "queryable": true,
+      "shortname": "SAGES-DR1",
+      "showname_en": "SAGES-DR1",
+      "showname_zh": "SAGES\u5de1\u5929\u7b2c\u4e00\u6b21\u6570\u636e\u53d1\u5e03\u53ca\u5176\u589e\u8865",
+      "table_query_supported": true
+    },
+    {
+      "catalog_query_supported": true,
+      "catname": "legacysurvey10tractor",
+      "datatype": null,
+      "description_en": "https://www.legacysurvey.org/dr9/description/",
+      "description_zh": "https://www.legacysurvey.org/dr9/description/",
+      "downloadlink": null,
+      "file_download": {
+        "batch_download_endpoint": null,
+        "categories": [],
+        "id_source": null,
+        "single_file_endpoint": null,
+        "single_file_query_by_category": {},
+        "supported": false
+      },
+      "file_download_supported": false,
+      "intro_en": "https://www.legacysurvey.org/dr10/description/",
+      "intro_zh": "https://www.legacysurvey.org/dr10/description/",
+      "officiallink": null,
+      "parent_catname": null,
+      "queryable": true,
+      "shortname": "LegacySurvey DR10 Tractor",
+      "showname_en": "LegacySurvey DR10 Tractor",
+      "showname_zh": "LegacySurvey DR10 Tractor",
+      "table_query_supported": true
+    },
+    {
+      "catalog_query_supported": true,
+      "catname": "legacyplate-image",
+      "datatype": "image",
+      "description_en": null,
+      "description_zh": null,
+      "downloadlink": null,
+      "file_download": {
+        "batch_download_endpoint": "/query/openapi/catalogs/legacyplate-image/download",
+        "categories": [
+          "fits",
+          "out"
+        ],
+        "id_source": {
+          "column": "filename",
+          "parameter": "id",
+          "result_field": "image_filename",
+          "table": "legacyplate_2023.image"
+        },
+        "single_file_endpoint": "/query/openapi/catalogs/legacyplate-image/file",
+        "single_file_query_by_category": {
+          "fits": {
+            "category": "fits"
+          },
+          "out": {
+            "category": "out"
+          }
+        },
+        "supported": true
+      },
+      "file_download_supported": true,
+      "intro_en": "/article/20210126183718",
+      "intro_zh": "/article/20210126183718",
+      "officiallink": null,
+      "parent_catname": "legacyplate",
+      "queryable": true,
+      "shortname": "Legacy Plate Images",
+      "showname_en": "Legacy Plate Images",
+      "showname_zh": "Legacy Plate Images",
+      "table_query_supported": true
+    },
+    {
+      "catalog_query_supported": true,
+      "catname": "legacyplateedr",
+      "datatype": null,
+      "description_en": null,
+      "description_zh": null,
+      "downloadlink": null,
+      "file_download": {
+        "batch_download_endpoint": "/query/openapi/catalogs/legacyplateedr/download",
+        "categories": [
+          "fits",
+          "jpg"
+        ],
+        "id_source": {
+          "column": "id",
+          "parameter": "id",
+          "result_field": "images_id",
+          "table": "legacyplate.images"
+        },
+        "single_file_endpoint": "/query/openapi/catalogs/legacyplateedr/file",
+        "single_file_query_by_category": {
+          "fits": {
+            "category": "fits"
+          },
+          "jpg": {
+            "category": "jpg"
+          }
+        },
+        "supported": true
+      },
+      "file_download_supported": true,
+      "intro_en": "/article/20210126183718",
+      "intro_zh": "/article/20210126183718",
+      "officiallink": null,
+      "parent_catname": "legacyplate",
+      "queryable": true,
+      "shortname": "Legacy Plate Early Release",
+      "showname_en": "Legacy Plate Early Release",
+      "showname_zh": "Legacy Plate Early Release",
+      "table_query_supported": true
+    },
+    {
+      "catalog_query_supported": false,
+      "catname": "bassdr2",
+      "datatype": "catalog,image",
+      "description_en": "&gt;&gt;&gt;  <a href=\"http://batc.bao.ac.cn/BASS/doku.php?id=datarelease:dr2:home\">Official Site</a>",
+      "description_zh": "&gt;&gt;&gt;  <a href=\"http://batc.bao.ac.cn/BASS/doku.php?id=datarelease:dr2:home\">Official Site</a>",
+      "downloadlink": "https://casdc.china-vo.org/archive/BASS/DR2/coadded-catalogs/",
+      "file_download": {
+        "batch_download_endpoint": null,
+        "categories": [],
+        "id_source": null,
+        "single_file_endpoint": null,
+        "single_file_query_by_category": {},
+        "supported": false
+      },
+      "file_download_supported": false,
+      "intro_en": null,
+      "intro_zh": null,
+      "officiallink": "http://batc.bao.ac.cn/BASS/doku.php?id=datarelease:dr2:home",
+      "parent_catname": null,
+      "queryable": false,
+      "shortname": "BASS DR2",
+      "showname_en": "Beijing-Arizona Sky Survey DR2",
+      "showname_zh": "Beijing-Arizona Sky Survey DR2",
+      "table_query_supported": false
+    },
+    {
+      "catalog_query_supported": false,
+      "catname": "bassdr3",
+      "datatype": "catalog,image",
+      "description_en": "&gt;&gt;&gt;  <a href=\"http://batc.bao.ac.cn/BASS/doku.php?id=datarelease:dr3:home\">Official Site</a>",
+      "description_zh": "&gt;&gt;&gt;  <a href=\"http://batc.bao.ac.cn/BASS/doku.php?id=datarelease:dr3:home\">Official Site</a>",
+      "downloadlink": "https://casdc.china-vo.org/archive/BASS/DR3/",
+      "file_download": {
+        "batch_download_endpoint": null,
+        "categories": [],
+        "id_source": null,
+        "single_file_endpoint": null,
+        "single_file_query_by_category": {},
+        "supported": false
+      },
+      "file_download_supported": false,
+      "intro_en": null,
+      "intro_zh": null,
+      "officiallink": "http://batc.bao.ac.cn/BASS/doku.php?id=datarelease:dr3:home",
+      "parent_catname": null,
+      "queryable": false,
+      "shortname": "BASS DR3",
+      "showname_en": "Beijing-Arizona Sky Survey DR3",
+      "showname_zh": "Beijing-Arizona Sky Survey DR3",
+      "table_query_supported": false
+    },
+    {
+      "catalog_query_supported": false,
+      "catname": "legacyplate",
+      "datatype": "catalog,image",
+      "description_en": null,
+      "description_zh": null,
+      "downloadlink": null,
+      "file_download": {
+        "batch_download_endpoint": null,
+        "categories": [],
+        "id_source": null,
+        "single_file_endpoint": null,
+        "single_file_query_by_category": {},
+        "supported": false
+      },
+      "file_download_supported": false,
+      "intro_en": "/article/20210126183718",
+      "intro_zh": "/article/20210126183718",
+      "officiallink": null,
+      "parent_catname": null,
+      "queryable": false,
+      "shortname": "Legacy Plate",
+      "showname_en": "Legacy Plate",
+      "showname_zh": "Legacy Plate",
+      "table_query_supported": false
+    },
+    {
+      "catalog_query_supported": true,
+      "catname": "FASHI",
+      "datatype": null,
+      "description_en": "Identified optical counterparts from the SGA catalog",
+      "description_zh": null,
+      "downloadlink": null,
+      "file_download": {
+        "batch_download_endpoint": null,
+        "categories": [],
+        "id_source": null,
+        "single_file_endpoint": null,
+        "single_file_query_by_category": {},
+        "supported": false
+      },
+      "file_download_supported": false,
+      "intro_en": null,
+      "intro_zh": null,
+      "officiallink": null,
+      "parent_catname": null,
+      "queryable": true,
+      "shortname": null,
+      "showname_en": "FASHI",
+      "showname_zh": "\u4e2d\u56fd\u5929\u773c\u4e2d\u6027\u6c22\u5de1\u5929\u7b2c\u4e00\u6b21\u6570\u636e\u53d1\u5e03",
+      "table_query_supported": true
+    },
+    {
+      "catalog_query_supported": true,
+      "catname": "alfalfa_crossmatch",
+      "datatype": null,
+      "description_en": null,
+      "description_zh": null,
+      "downloadlink": null,
+      "file_download": {
+        "batch_download_endpoint": null,
+        "categories": [],
+        "id_source": null,
+        "single_file_endpoint": null,
+        "single_file_query_by_category": {},
+        "supported": false
+      },
+      "file_download_supported": false,
+      "intro_en": null,
+      "intro_zh": null,
+      "officiallink": null,
+      "parent_catname": "FASHI",
+      "queryable": true,
+      "shortname": null,
+      "showname_en": "FASHI and ALFALFA cross-matching catalog",
+      "showname_zh": null,
+      "table_query_supported": true
+    },
+    {
+      "catalog_query_supported": true,
+      "catname": "optical_counterparts_sga",
+      "datatype": null,
+      "description_en": null,
+      "description_zh": null,
+      "downloadlink": null,
+      "file_download": {
+        "batch_download_endpoint": null,
+        "categories": [],
+        "id_source": null,
+        "single_file_endpoint": null,
+        "single_file_query_by_category": {},
+        "supported": false
+      },
+      "file_download_supported": false,
+      "intro_en": null,
+      "intro_zh": null,
+      "officiallink": null,
+      "parent_catname": "FASHI",
+      "queryable": true,
+      "shortname": null,
+      "showname_en": "Identified optical counterparts from the SGA catalog",
+      "showname_zh": null,
+      "table_query_supported": true
+    },
+    {
+      "catalog_query_supported": true,
+      "catname": "optical_counterparts_sdss_spec",
+      "datatype": null,
+      "description_en": null,
+      "description_zh": null,
+      "downloadlink": null,
+      "file_download": {
+        "batch_download_endpoint": null,
+        "categories": [],
+        "id_source": null,
+        "single_file_endpoint": null,
+        "single_file_query_by_category": {},
+        "supported": false
+      },
+      "file_download_supported": false,
+      "intro_en": null,
+      "intro_zh": null,
+      "officiallink": null,
+      "parent_catname": "FASHI",
+      "queryable": true,
+      "shortname": null,
+      "showname_en": "Identified optical counterparts from the SDSS spectroscopic catalog",
+      "showname_zh": null,
+      "table_query_supported": true
+    },
+    {
+      "catalog_query_supported": true,
+      "catname": "optical_counterparts_sdss_phot",
+      "datatype": null,
+      "description_en": null,
+      "description_zh": null,
+      "downloadlink": null,
+      "file_download": {
+        "batch_download_endpoint": null,
+        "categories": [],
+        "id_source": null,
+        "single_file_endpoint": null,
+        "single_file_query_by_category": {},
+        "supported": false
+      },
+      "file_download_supported": false,
+      "intro_en": null,
+      "intro_zh": null,
+      "officiallink": null,
+      "parent_catname": "FASHI",
+      "queryable": true,
+      "shortname": null,
+      "showname_en": "Identified optical counterparts from the SDSS photometric catalog",
+      "showname_zh": null,
+      "table_query_supported": true
+    }
+  ],
+  "total": 62
+}
