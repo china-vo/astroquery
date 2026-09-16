@@ -287,6 +287,7 @@ The following modules have been completed using a common API:
   mast/mast.rst
   mocserver/mocserver.rst
   mpc/mpc.rst
+  nadc/query_guide.rst
   nadc/cstar.rst
   nadc/fashi.rst
   nadc/legacyplate.rst
