@@ -30,6 +30,11 @@ nadc.lamost
 - New module to access the LAMOST spectroscopic survey archive hosted by the
   National Astronomical Data Center (NADC). [#3666]
 
+nadc
+^^^^
+
+- New QueryData clients for the NADC cstar services.
+
 nrao
 ^^^^
 

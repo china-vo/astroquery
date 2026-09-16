@@ -287,6 +287,7 @@ The following modules have been completed using a common API:
   mast/mast.rst
   mocserver/mocserver.rst
   mpc/mpc.rst
+  nadc/cstar.rst
   nasa_ads/nasa_ads.rst
   ipac/ned/ned.rst
   nist/nist.rst
@@ -358,6 +359,7 @@ for each source)
   ipac/irsa/ibe/ibe.rst
   ipac/irsa/irsa.rst
   mast/mast.rst
+  nadc/cstar.rst
   ipac/nexsci/nasa_exoplanet_archive.rst
   ipac/ned/ned.rst
   ogle/ogle.rst
