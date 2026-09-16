@@ -33,7 +33,7 @@ nadc.lamost
 nadc
 ^^^^
 
-- New QueryData clients for the NADC cstar, fashi services.
+- New QueryData clients for the NADC cstar, fashi, legacyplate services.
 
 nrao
 ^^^^
