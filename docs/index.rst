@@ -291,6 +291,7 @@ The following modules have been completed using a common API:
   nadc/fashi.rst
   nadc/legacyplate.rst
   nadc/sages.rst
+  nadc/scuss.rst
   nasa_ads/nasa_ads.rst
   ipac/ned/ned.rst
   nist/nist.rst
@@ -366,6 +367,7 @@ for each source)
   nadc/fashi.rst
   nadc/legacyplate.rst
   nadc/sages.rst
+  nadc/scuss.rst
   ipac/nexsci/nasa_exoplanet_archive.rst
   ipac/ned/ned.rst
   ogle/ogle.rst
