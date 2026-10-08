@@ -196,10 +196,11 @@ class TestLamost:
     @pytest.mark.parametrize('method, args', [
         ('query_catalog', ('combined',)), ('query_spectra', ()), ('query_stellar_parameters', ()),
     ])
-    def test_structured_query_row_limit(self, method, args):
-        query = getattr(LamostClass(), method)
-        assert query(*args, get_query_payload=True)['rows'] == 100
-        assert query(*args, max_rows=7, get_query_payload=True)['rows'] == 7
+    @pytest.mark.parametrize('token', ['', 'query-token'])
+    def test_structured_query_row_limit(self, method, args, token):
+        query = getattr(LamostClass(token=token), method)
+        assert query(*args, get_query_payload=True)['json']['rows'] == 100
+        assert query(*args, max_rows=7, get_query_payload=True)['json']['rows'] == 7
 
     def test_query_catalog_payload_simple(self):
         """Test catalog query payload construction"""
@@ -210,11 +211,11 @@ class TestLamost:
             get_query_payload=True
         )
 
-        assert 'rows' in payload
-        assert 'showcol' in payload
-        assert payload['rows'] == 10
-        assert payload['showcol'] == ['obsid', 'ra', 'dec']
-        assert payload['output.fmt'] == 'json'
+        assert 'rows' in payload['json']
+        assert 'showcol' in payload['json']
+        assert payload['json']['rows'] == 10
+        assert payload['json']['showcol'] == ['obsid', 'ra', 'dec']
+        assert payload['json']['output.fmt'] == 'json'
 
         # Test different output formats
         for fmt in ['votable', 'csv', 'txt']:
@@ -225,7 +226,7 @@ class TestLamost:
                 output_format=fmt,
                 get_query_payload=True
             )
-            assert payload_fmt['output.fmt'] == fmt
+            assert payload_fmt['json']['output.fmt'] == fmt
 
     def test_query_catalog_payload_with_constraints(self):
         """Test catalog query with column constraints"""
@@ -240,9 +241,9 @@ class TestLamost:
             get_query_payload=True
         )
 
-        assert 'column_constraints' in payload
-        assert payload['column_constraints'] == constraints
-        assert 'showcol' in payload
+        assert 'column_constraints' in payload['json']
+        assert payload['json']['column_constraints'] == constraints
+        assert 'showcol' in payload['json']
 
     @pytest.mark.parametrize('kwargs', [
         {'sort_order': 'bogus'}, {'columns': ['obsid', 'obsid']},
@@ -282,8 +283,9 @@ class TestLamost:
         assert sql.endswith('LIMIT 5 OFFSET 0')
         assert request.call_args.args[1].endswith('/sql')
 
-    def test_query_catalog_payload_with_token_separates_body_and_params(self):
-        lamost = LamostClass(token='query-token')
+    @pytest.mark.parametrize('token', ['', 'query-token'])
+    def test_query_catalog_payload_separates_body_and_params(self, token):
+        lamost = LamostClass(token=token)
 
         payload = lamost.query_catalog(
             'combined',
@@ -299,7 +301,28 @@ class TestLamost:
             'order': 'asc',
             'showcol': ['obsid'],
         }
-        assert 'token' in payload['params']
+        assert set(payload) == {'json', 'params'}
+        assert payload['params'] == ({'token': '<redacted>'} if token else {})
+        assert 'query-token' not in repr(payload)
+
+    @pytest.mark.parametrize('token', ['', 'query-token'])
+    @pytest.mark.parametrize('method, args, kwargs, expected', [
+        ('query_sql', ('SELECT obsid FROM combined LIMIT 5',), {},
+         {'sql': 'SELECT obsid FROM combined LIMIT 5', 'output.fmt': 'json'}),
+        ('query_catalog', ('combined',), {
+            'columns': ['obsid'], 'max_rows': 5,
+            'position_constraints': {'cone': {'racenter': 10., 'deccenter': 40., 'radius': 5.}},
+        }, None),
+        ('query_repeat_observations', (), {'obsid': 101001}, {'obsid': '101001'}),
+    ])
+    def test_get_payload_remains_flat(self, spectral_schema, token, method, args, kwargs, expected):
+        payload = getattr(LamostClass(token=token), method)(*args, get_query_payload=True, **kwargs)
+        if expected is None:
+            assert set(payload) - {'token'} == {'sql', 'output.fmt'}
+            assert payload['sql'].endswith('LIMIT 5 OFFSET 0')
+        else:
+            assert {key: value for key, value in payload.items() if key != 'token'} == expected
+        assert payload.get('token') == ('<redacted>' if token else None)
         assert 'query-token' not in repr(payload)
 
     def test_query_spectra_builds_quality_payload(self, spectral_schema):
@@ -332,8 +355,8 @@ class TestLamost:
             get_query_payload=True,
         )
 
-        assert payload['showcol'] == ['obsid', 'ra', 'dec', 'teff', 'logg', 'feh', 'snrg']
-        assert payload['column_constraints'] == [
+        assert payload['json']['showcol'] == ['obsid', 'ra', 'dec', 'teff', 'logg', 'feh', 'snrg']
+        assert payload['json']['column_constraints'] == [
             {'column_name': 'snrg', 'operation': 'greaterequal', 'constraint': '30'},
             {'column_name': 'teff', 'operation': 'between', 'min': 4500, 'max': 6500},
         ]
@@ -348,10 +371,10 @@ class TestLamost:
             get_query_payload=True,
         )
 
-        assert payload['showcol'] == [
+        assert payload['json']['showcol'] == [
             'obsid', 'ra', 'dec', 'teff_lasp', 'logg_lasp', 'feh_lasp', 'snr',
         ]
-        assert payload['column_constraints'] == [
+        assert payload['json']['column_constraints'] == [
             {'column_name': 'snr', 'operation': 'greaterequal', 'constraint': '30'},
             {'column_name': 'teff_lasp', 'operation': 'between', 'min': 4500, 'max': 6500},
             {'column_name': 'logg_lasp', 'operation': 'between', 'min': 3.0, 'max': 5.0},

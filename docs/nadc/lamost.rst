@@ -37,12 +37,10 @@ For authenticated access, set ``ASTROQUERY_NADC_LAMOST_TOKEN`` or configure
   >>> authenticated = LamostClass()  # doctest: +SKIP
   >>> configured = LamostClass(pylamost_config='~/pylamost.ini')  # doctest: +SKIP
 
-The optional ``pylamost_config`` path expands ``~`` and is read only when
-explicitly supplied. Tokens are selected from the constructor argument,
-``conf.token``, environment variables, then this file, in that order.
-Pass ``token=''`` to force anonymous access. Configure only one token
-environment variable: the legacy ``ASTROQUERY_LAMOST_TOKEN`` takes precedence
-over ``ASTROQUERY_NADC_LAMOST_TOKEN``. Authenticated requests bypass the cache.
+Pass ``token=''`` to force anonymous access. The optional ``pylamost_config``
+path expands ``~`` and is read only when explicitly supplied. See
+`~astroquery.nadc.lamost.LamostClass` for token precedence and legacy
+environment-variable support.
 
 Basic Usage
 ===========
@@ -79,24 +77,19 @@ Invalid or non-angular radii raise ``InvalidQueryError``.
 
 SQL-style queries and structured catalog requests are also available:
 
-.. doctest::
+.. doctest-remote-data::
 
-  >>> sql_payload = lamost.query_sql('SELECT * FROM combined LIMIT 5', get_query_payload=True)
-  >>> sql_payload['output.fmt']
-  'json'
-  >>> catalog_payload = lamost.query_catalog(
-  ...     'combined',
-  ...     columns=['obsid', 'ra', 'dec'],
-  ...     max_rows=5,
-  ...     get_query_payload=True,
-  ... )
-  >>> catalog_payload['rows']
-  5
+  >>> sql_results = lamost.query_sql('SELECT obsid, ra, dec FROM combined LIMIT 5')
+  >>> print(sql_results)  # doctest: +IGNORE_OUTPUT
+  >>> catalog_results = lamost.query_catalog(
+  ...     'combined', columns=['obsid', 'ra', 'dec'], max_rows=5)
+  >>> print(catalog_results)  # doctest: +IGNORE_OUTPUT
 
-``get_query_payload=True`` inspects request parameters without submitting the
-data query; token values are redacted. Structured SQL queries may still fetch
-metadata, and object names may require online coordinate resolution.
 For page sizes and retrieving further results, see :ref:`lamost-pagination`.
+
+Use ``get_query_payload=True`` to inspect request parameters without executing
+the data query, with credentials redacted; see
+`~astroquery.nadc.lamost.LamostClass.query_catalog` for the return format.
 
 Data Release and Metadata
 =========================
@@ -254,7 +247,7 @@ select ``snru``, ``snrr``, ``snri``, or ``snrz`` explicitly with
   ...     snr_min=30,
   ...     get_query_payload=True,
   ... )
-  >>> stellar_payload["showcol"]
+  >>> stellar_payload["json"]["showcol"]
   ['obsid', 'ra', 'dec', 'teff', 'logg', 'feh', 'snrg']
 
 Use ``query_repeat_observations`` to resolve one observation ID, or one

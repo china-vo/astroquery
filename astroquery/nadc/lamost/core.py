@@ -150,6 +150,12 @@ class LamostClass(BaseQuery):
     Configuration is read when an instance is created, including the
     module-level ``Lamost`` instance at import time. Changing ``conf`` does
     not update existing instances. Create a new `LamostClass` to apply it.
+
+    Token precedence is the constructor argument, ``conf.token``, environment
+    variables, then an explicitly supplied ``pylamost_config`` file (whose
+    path expands ``~``). Pass ``token=''`` to force anonymous access.
+    The legacy ``ASTROQUERY_LAMOST_TOKEN`` environment variable takes precedence
+    over ``ASTROQUERY_NADC_LAMOST_TOKEN``; configure only one of them.
     Authenticated requests and streaming downloads bypass the disk cache.
     ``get_query_payload=True`` returns parameters with credentials redacted.
 
@@ -1199,12 +1205,10 @@ class LamostClass(BaseQuery):
             request_payload['sort'] = sort_by
 
         if get_query_payload:
-            if self.token:
-                return self._redact({
-                    'json': request_payload,
-                    'params': {'token': self.token},
-                })
-            return self._redact(request_payload)
+            return self._redact({
+                'json': request_payload,
+                'params': {'token': self.token} if self.token else {},
+            })
 
         url = f"{self.URL}/{self.data_release}/{self.sub_version}/query/{catalog_name}"
         return self._request_raise(
@@ -1256,6 +1260,9 @@ class LamostClass(BaseQuery):
             Return the actual redacted request parameters without executing the
             data query. SQL-backed requests fetch field metadata first and
             validate columns; native request payloads are returned unvalidated.
+            Native POST previews contain ``json`` (the body) and ``params``
+            (the URL parameters, empty for anonymous access). SQL-backed GET
+            previews are flat dictionaries containing ``sql`` instead.
         cache : bool, optional
             Whether to use astroquery's request cache.
         verbose : bool, optional
@@ -1474,6 +1481,7 @@ class LamostClass(BaseQuery):
             Return the actual redacted request parameters without executing the
             data query. SQL-backed requests fetch field metadata first and
             validate columns; native request payloads are returned unvalidated.
+            See `query_catalog` for the native POST and SQL GET preview formats.
         cache : bool, optional
             Whether to use astroquery's request cache.
         verbose : bool, optional
@@ -1590,6 +1598,7 @@ class LamostClass(BaseQuery):
             Return the actual redacted request parameters without executing the
             data query. SQL-backed requests fetch field metadata first and
             validate columns; native request payloads are returned unvalidated.
+            See `query_catalog` for the native POST and SQL GET preview formats.
         cache : bool, optional
             Whether to use astroquery's request cache.
         verbose : bool, optional
