@@ -8,6 +8,8 @@ from __future__ import annotations
 import re
 from xml.etree import ElementTree
 
+from astropy.utils import minversion
+
 
 _FIELD_START_TAG_RE = re.compile(rb"<FIELD\b([^>]*?)\s*(/?)>", re.IGNORECASE)
 _EMPTY_ARRAYSIZE_RE = re.compile(rb'arraysize=""', re.IGNORECASE)
@@ -20,14 +22,23 @@ def widen_tabledata_strings(content: bytes) -> bytes:
     This LAMOST server workaround can be removed after the archive supplies
     correct string lengths. Binary layouts and multidimensional fields are
     left untouched; any remaining truncation is rejected by the caller.
+    Bounded variable-length binary strings require Astropy >= 7.1.1 to
+    avoid incorrect decoding on older versions.
     """
     root = ElementTree.fromstring(content)
     changed = False
     for table in root.iterfind('.//{*}TABLE'):
+        fields = table.findall('{*}FIELD')
         rows = table.find('{*}DATA/{*}TABLEDATA')
         if rows is None:
+            # Astropy #18105: older converters treat bounded variable-length
+            # binary strings as fixed-length, corrupting values and row counts.
+            if (any(table.find(f'{{*}}DATA/{{*}}{layout}') is not None for layout in ('BINARY', 'BINARY2'))
+                    and any(field.get('datatype') in {'char', 'unicodeChar'}
+                            and re.fullmatch(r'[0-9]+\*', field.get('arraysize', '')) for field in fields)
+                    and not minversion('astropy', '7.1.1')):
+                raise ValueError('Reading bounded variable-length binary strings requires Astropy >= 7.1.1.')
             continue
-        fields = table.findall('{*}FIELD')
         widths = {}
         for i, field in enumerate(fields):
             size = field.get('arraysize', '1')

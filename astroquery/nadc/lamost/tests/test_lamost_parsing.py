@@ -8,6 +8,7 @@ import struct
 
 from astropy import units as u
 from astropy.table import MaskedColumn, Table
+from astropy.utils import minversion
 import numpy as np
 import pytest
 
@@ -71,9 +72,34 @@ def test_votable_binary_strings_are_not_repaired(data_format):
       <FIELD name="id" datatype="char" arraysize="2*"/>
       <DATA><{data_format}><STREAM encoding="base64">{base64.b64encode(raw).decode()}</STREAM>
       </{data_format}></DATA></TABLE></RESOURCE></VOTABLE>'''.encode()
-    assert widen_tabledata_strings(content) == content
-    with pytest.raises(TableParseError, match='refusing to return truncated data'):
+    message = ('refusing to return truncated data' if minversion('astropy', '7.1.1')
+               else 'requires Astropy >= 7.1.1')
+    with pytest.raises(TableParseError, match=message):
         LamostClass()._parse_result(create_mock_response(content=content))
+
+
+@pytest.mark.parametrize('data_format', ['BINARY', 'BINARY2'])
+@pytest.mark.parametrize('datatype', ['char', 'unicodeChar'])
+@pytest.mark.parametrize('arraysize', ['6', '*', '6*'])
+def test_votable_binary_strings_preserve_values_or_reject_unsupported_layout(data_format, datatype, arraysize):
+    value = '001234' if datatype == 'char' else '恒星0012'
+    raw = value.encode('ascii' if datatype == 'char' else 'utf-16-be')
+    if arraysize.endswith('*'):
+        raw = struct.pack('>i', len(value)) + raw
+    if data_format == 'BINARY2':
+        raw = b'\x00' + raw
+    content = f'''<VOTABLE version="1.3"><RESOURCE><TABLE>
+      <FIELD name="id" datatype="{datatype}" arraysize="{arraysize}"/>
+      <DATA><{data_format}><STREAM encoding="base64">{base64.b64encode(raw).decode()}</STREAM>
+      </{data_format}></DATA></TABLE></RESOURCE></VOTABLE>'''.encode()
+    client = LamostClass()
+    if arraysize == '6*' and not minversion('astropy', '7.1.1'):
+        with pytest.raises(TableParseError, match='requires Astropy >= 7.1.1'):
+            client._parse_result(create_mock_response(content=content))
+    else:
+        assert widen_tabledata_strings(content) == content
+        table = client._parse_result(create_mock_response(content=content))
+        assert list(table['id']) == [value]
 
 
 @pytest.mark.parametrize('field,rows', [
@@ -105,7 +131,11 @@ def test_votable_shortened_field_lengths_preserve_recorded_cone_sample():
     client = LamostClass()
     expected = client._parse_result(create_mock_response(content=content))
     actual = client._parse_result(create_mock_response(content=damaged))
-    np.testing.assert_array_equal(actual.as_array(), expected.as_array())
+    assert actual.colnames == expected.colnames
+    for name in expected.colnames:
+        mask = np.ma.getmaskarray(expected[name])
+        np.testing.assert_array_equal(np.ma.getmaskarray(actual[name]), mask)
+        np.testing.assert_array_equal(np.asarray(actual[name])[~mask], np.asarray(expected[name])[~mask])
 
 
 @pytest.mark.parametrize('body', [b'', b' \t\r\n', b'\xef\xbb\xbf \n'])
