@@ -28,18 +28,8 @@ in seconds:
   >>> lamost.TIMEOUT
   120
 
-``LamostClass`` resolves tokens in this order: an explicit ``token`` argument,
-``conf.token``, environment variables such as
-``ASTROQUERY_NADC_LAMOST_TOKEN``, and an explicitly requested pylamost-style
-configuration file. Pass ``token=''`` to force anonymous access, including
-when a token is configured elsewhere. An empty ``conf.token`` permits the
-environment/config-file fallback; it does not force anonymous access.
-``ASTROQUERY_NADC_LAMOST_TOKEN`` is the recommended environment variable.
-Legacy aliases remain supported; ``ASTROQUERY_LAMOST_TOKEN`` is checked first
-if both are set, so configure only one of these variables.
-
-Configure a token using ``astroquery.cfg``, an environment variable, or
-``conf`` before constructing the client. For example:
+For authenticated access, set ``ASTROQUERY_NADC_LAMOST_TOKEN`` or configure
+``conf.token`` before creating the client:
 
 .. doctest::
 
@@ -47,38 +37,28 @@ Configure a token using ``astroquery.cfg``, an environment variable, or
   >>> authenticated = LamostClass()  # doctest: +SKIP
   >>> configured = LamostClass(pylamost_config='~/pylamost.ini')  # doctest: +SKIP
 
-The last example reads ``token=your-token`` from the named file only if no
-higher-priority source supplied a token. The client does not search for this
-file automatically. Authenticated requests disable response caching.
-``conf.server`` must include the OpenAPI base path, for example
-``https://www.lamost.org/openapi``. The timeout applies to queries and data
-downloads.
+The optional ``pylamost_config`` path expands ``~`` and is read only when
+explicitly supplied. Tokens are selected from the constructor argument,
+``conf.token``, environment variables, then this file, in that order.
+Pass ``token=''`` to force anonymous access. Configure only one token
+environment variable: the legacy ``ASTROQUERY_LAMOST_TOKEN`` takes precedence
+over ``ASTROQUERY_NADC_LAMOST_TOKEN``. Authenticated requests bypass the cache.
 
 Basic Usage
 ===========
 
-``query_region`` requests CSV by default. Some archive VOTable
-responses declare string columns too short for their data; the client raises
-``TableParseError`` instead of returning truncated
-identifiers when VOTable is explicitly requested.
+Use ``query_region`` to find observations around a position:
 
 .. doctest::
 
   >>> import astropy.units as u
   >>> from astropy.coordinates import SkyCoord
   >>> coord = SkyCoord(10.0004738, 40.9952444, unit='deg', frame='icrs')
-  >>> payload = lamost.query_region(
-  ...     coord, radius=0.2*u.deg, output_format='csv', get_query_payload=True)
-  >>> payload['ra'], payload['dec'], payload['output.fmt']
-  (10.0004738, 40.9952444, 'csv')
 
 .. doctest-remote-data::
 
-  >>> matches = lamost.query_region(
-  ...     coord, radius=0.2*u.deg, output_format='csv')
-  >>> assert {'obsid', 'ra', 'dec'} <= set(matches.colnames)
-  >>> assert matches['obsid'].dtype.kind in 'iu'
-  >>> assert matches['ra'].dtype.kind == 'f'
+  >>> matches = lamost.query_region(coord, radius=0.2*u.deg)
+  >>> print(matches['obsid', 'ra', 'dec'][:5])  # doctest: +IGNORE_OUTPUT
 
 Catalog query methods return `~astropy.table.Table` objects. Coordinates are
 transformed to ICRS. Radii accept angular quantities such as ``5*u.arcsec``
@@ -88,10 +68,14 @@ arcseconds for the structured ``query_spectra`` and
 ``query_stellar_parameters`` methods. Use explicit units to avoid ambiguity.
 Invalid or non-angular radii raise ``InvalidQueryError``.
 
-CSV avoids the known VOTable format problem on endpoints that honor the
-format request. It does not establish that the service returned every match
-for any release or search size. A single query
-does not automatically retrieve additional pages.
+.. note::
+
+   ``query_region`` requests CSV by default, but some LAMOST endpoints return
+   VOTable regardless of the requested format. Some of these responses declare
+   string fields shorter than their values. The client widens affected
+   fixed-length string fields in TABLEDATA before parsing, preserving complete identifiers.
+   This workaround is needed until the service supplies correct field lengths;
+   unsupported cases that would truncate strings still raise ``TableParseError``.
 
 SQL-style queries and structured catalog requests are also available:
 
@@ -109,16 +93,10 @@ SQL-style queries and structured catalog requests are also available:
   >>> catalog_payload['rows']
   5
 
-``get_query_payload=True`` returns a request mapping with token values
-redacted, without submitting the data query. SQL-backed structured queries
-fetch field metadata to validate and compile the request first. The returned
-mapping contains the actual SQL parameters, or ``json`` and ``params`` entries
-for a structured POST. Pass explicit
-coordinates, as above, to avoid online name resolution of an object name.
-
-For ``query_catalog`` and its wrappers, ``max_rows`` limits a single page
-(default: 100), and ``page`` selects the one-based page number. These methods
-do not aggregate pages.
+``get_query_payload=True`` inspects request parameters without submitting the
+data query; token values are redacted. Structured SQL queries may still fetch
+metadata, and object names may require online coordinate resolution.
+For page sizes and retrieving further results, see :ref:`lamost-pagination`.
 
 Data Release and Metadata
 =========================
@@ -132,43 +110,20 @@ definitions. ``get_metadata(obsid)`` returns information about one observation.
 Known Limitations
 -----------------
 
-The reference configuration is the public DR10/v2.0 service. A release
-listed by ``get_dr_versions`` does not establish that every endpoint or
-output format works for it; select both version components explicitly when
-reproducing an observation.
+Available endpoints and formats vary by release. Select both ``data_release``
+and ``sub_version`` when reproducing an observation.
 
-- Legacy releases without ``/tables`` read the visible database relations and
-  their column types through SQL. Units unavailable in old metadata remain
-  unset.
+- Legacy metadata lookups may require authentication even when observation
+  metadata and FITS downloads are public, as in DR7/v2.0.
+- Where no default catalog mapping is available, use ``get_tables_metadata``
+  to select a catalog and pass ``catalog_name`` explicitly.
 - ``output_format=None`` selects JSON for modern configurations and CSV for
-  legacy ones. An explicit format is sent unchanged; some old SQL services
-  return HTML for JSON requests.
-- Configurations without a verified default catalog mapping raise
-  ``InvalidQueryError`` from the spectral query helpers;
-  inspect ``get_tables_metadata`` and use ``query_catalog`` or an explicit
-  ``catalog_name``. The client does not guess a population or switch releases.
-- DR3 uses its native routes for SQL, cone search, spectrum metadata and FITS.
-  DR3 and DR8 cone services can return VOTable even when CSV is requested,
-  with column names such as ``catalogue_obsid``; the known prefixes are
-  matched to catalog types. DR3 has no verified related-observation lookup.
-- DR7--DR11 MRS v0 queries failed with the tested account because the
-  service could not read the MRS tables. Such failures propagate; they are
-  not turned into empty tables.
+  legacy ones. Some older services do not support every requested format.
+- Related-observation lookup is not supported for DR3.
 
-Supported table inputs are JSON, CSV, tab-separated TXT and valid VOTable.
-Historical pipe-delimited text labelled as CSV is recognized from unquoted
-delimiters in its header; quoted delimiters, whitespace and embedded newlines
-remain field content. Missing fields, duplicate or empty column names and
-broken quoting raise ``TableParseError``. JSON record
-envelopes with ``rows`` and ``total`` keep each record and store ``total`` in
-``table.meta``; unrecognized JSON objects raise ``TableParseError`` rather
-than becoming a single data row.
-
-Executed ``query_catalog`` requests validate output, constraint, position and
-sort columns against ``get_tables_metadata`` before submitting the query, and
-the returned table must contain every requested column. Results record their
-source as ``table.meta['catalog']``; catalog names are specific to each
-release. Use ``cache=False`` to refresh cached metadata and query responses.
+Results from ``query_catalog`` identify their catalog in
+``table.meta['catalog']``. Use ``cache=False`` to refresh cached metadata and
+query responses.
 
 .. doctest-remote-data::
 
@@ -188,18 +143,14 @@ is an integer when declared ``long``; character identifiers such as
 values are masked. Available schema information also determines the column
 types of empty results.
 
-``get_metadata`` also uses the selected resolution's catalog schema where a
-default mapping is known. It preserves MRS band/exposure rows and fields
-without type definitions. Unknown mappings retain raw parsing; failures to
-retrieve a known schema remain errors. The verified DR10/v2.0 LRS and MRS
-schemas provide no units; user-supplied ``column_schema`` units are supported.
+``get_metadata`` preserves MRS band/exposure rows. The DR10/v2.0 LRS and MRS
+schemas provide no units; check the returned units before using the values in
+calculations.
 
-``query_sql`` uses column definitions included in the response. Raw JSON
-without these definitions preserves the service's types: a value such as
-``teff='5770'`` remains a string. JSON null cells are masked; an all-null column
-can retain object dtype without a schema. The client does not infer types from SQL
-expressions or aliases. Supply ``column_schema`` using the actual result
-column names when known types are required:
+``query_sql`` uses column definitions supplied with the response. Without
+them, values retain the service's types: ``teff='5770'`` can remain a string.
+For SQL aliases or expressions, use ``column_schema`` to specify result types
+and units:
 
 .. doctest-remote-data::
 
@@ -216,21 +167,11 @@ column names when known types are required:
   >>> stars['temperature'].unit
   Unit("K")
 
-The schema must describe the returned expression, including any SQL unit
-conversion. With ``column_schema``, CSV/TXT fields are read as strings before
-conversion, so character identifiers such as ``'00123'`` keep their leading
-zeros; columns without a declared datatype remain strings. Empty fields are
-masked; whitespace-only fields are values in character columns and masked in
-numeric ones. Values that cannot be converted to their declared datatype raise
-``TableParseError``. NaN and infinity are preserved, so
-check masks and ``numpy.isfinite`` before analysis. A legacy VOTable can encode
-a missing integer as an empty ``TD`` cell; these cells are masked by position,
-preserving real zeros.
-
-Only client-generated SQL has an empty-body compatibility check: one separate
-count confirms whether the same page is empty before a typed empty table is
-returned. A failed count is still an error. Arbitrary ``query_sql`` statements
-are never wrapped automatically.
+Schema names and units must match the returned columns, including any SQL
+unit conversion. Character identifiers retain leading zeros. Missing values
+are masked; NaN and infinity are preserved, so check masks and finite values
+before analysis. See `~astroquery.nadc.lamost.LamostClass.query_sql` for the
+complete ``column_schema`` behavior.
 
 To inspect or save SQL output before table parsing, use ``query_sql_async``:
 
@@ -242,12 +183,10 @@ To inspect or save SQL output before table parsing, use ``query_sql_async``:
        'SELECT obsid, ra, dec FROM combined LIMIT 5', output_format='csv') as response:
        Path('lamost-response.csv').write_bytes(response.content)
 
-This is a synchronous HTTP request returning ``requests.Response``, following
-astroquery's ``_async`` naming convention. It checks HTTP, authentication and
-explicit service errors, but leaves table parsing to the caller. Raw responses
-may contain private data or credentials; diagnostic copies are redacted.
-No file is saved automatically and no retry is added. SQL TXT may return a
-service error; CSV and, on modern releases, JSON are the reference formats.
+This follows astroquery's ``_async`` convention: it returns a
+``requests.Response`` from a synchronous request, leaving table parsing to
+the caller. Raw responses may contain credentials; use the redacted diagnostic
+response described below when reporting an error.
 
 Temperature cuts use kelvin, ``logg`` cuts use the base-10 logarithm of surface
 gravity in cm/s\ :sup:`2`, and ``feh`` cuts use [Fe/H] in dex. S/N thresholds
@@ -258,17 +197,14 @@ Spectral Sample Queries
 =======================
 
 Use ``query_spectra`` to select spectral catalog records with common quality
-cuts; use ``get_spectra`` to download their FITS data. It translates query
-parameters such as SNR and stellar-parameter ranges into the structured
-``query_catalog`` payload.
+cuts; use ``get_spectra`` to download their FITS data.
 
 Position and physical constraints are applied together in the database.
 ``nearest_only=False`` returns the qualifying matches up to ``max_rows``;
 ``nearest_only=True`` selects one nearest qualifying row and requires
 ``page=1``. Without ``sort_by``, position results are ordered by angular
-distance. Sorting and filtering do not download the entire candidate set to
-the client. Rows at equal distances use stable secondary ordering; MRS
-exposures sharing an ``obsid`` are not deduplicated.
+distance, with stable secondary ordering for ties. MRS exposures sharing an
+``obsid`` remain separate rows.
 
 .. code-block:: python
 
@@ -332,8 +268,6 @@ choose the download resolution, since the two ID spaces can overlap.
 Associations follow the selected release's target identity rules. Use an
 ``obsid`` from that release when available; a cone query instead returns
 nearby observations without asserting that they belong to one target.
-DR3 has no verified equivalent UID lookup. Its external-catalog matches may
-be queried with SQL, but are not substituted for official target identities.
 
 .. code-block:: python
 
@@ -350,28 +284,26 @@ be queried with SQL, but are not substituted for official target identities.
   >>> repeat_payload["ra"], repeat_payload["dec"]
   (10.0004738, 40.9952444)
 
-Catalog Pagination and Export
-=============================
+.. _lamost-pagination:
 
-Query methods return one page. To retrieve a larger sample, keep the selection,
-page size, and sort order fixed while advancing ``page``. For example:
+Catalog Pagination
+==================
+
+``query_catalog``, ``query_spectra``, and ``query_stellar_parameters`` return
+one page per call, with a default ``max_rows=100`` and one-based ``page``.
+This is a client default to limit data transfer, not a general 100-row limit
+of the LAMOST service. These methods do not automatically fetch all matches.
+To request another page, keep the selection, page size, and sort order fixed:
 
 .. code-block:: python
 
-   page = 1
-   while True:
-       matches = lamost.query_spectra(
-           coord, '0.2 deg', columns=['obsid', 'ra', 'dec'],
-           sort_by='obsid', max_rows=100, page=page)
-       if len(matches) == 0:
-           break
-       matches.write(f'lamost-page-{page}.ecsv', format='ascii.ecsv', overwrite=True)
-       page += 1
+   matches = lamost.query_spectra(
+       coord, '0.2 deg', columns=['obsid', 'ra', 'dec'],
+       sort_by='obsid', max_rows=100, page=2)
 
-These are separate requests, not an atomic snapshot of a changing catalog.
-Errors propagate instead of being treated as an empty final page. For a
-single returned table, use ``Table.write`` with the desired local format;
-the service's ``output_format`` controls transport rather than file saving.
+An empty table marks the end of the results. Pages are separate requests,
+not an atomic snapshot of a changing catalog. Errors propagate instead of
+being treated as an empty final page.
 
 Data Products
 =============
@@ -384,10 +316,9 @@ To obtain its download URL without fetching the file, use ``get_spectrum_list``.
 Authenticated URLs contain the token and must not be shared or logged;
 ``get_query_payload=True`` returns redacted parameters instead.
 
-``get_spectra`` uses Astropy's ``verify='warn'`` by default. For this archive
-product, use ``silentfix`` when reading and writing to repair extraneous
-``NAXIS1`` and ``NAXIS2`` primary-header cards. The caller must close the
-returned HDU lists:
+``get_spectra`` uses Astropy's ``verify='warn'`` by default. This example
+uses ``silentfix`` to repair structural FITS header issues in the selected
+product. Close the returned HDU lists after use:
 
 .. doctest-remote-data::
 
@@ -401,38 +332,31 @@ returned HDU lists:
   >>> obsid
   176604010
 
-The saved ``lrs-spectrum.fits`` is used in the LRS processing example below.
 Astropy may fix structural header issues when writing; this is not a
 byte-for-byte copy of the HTTP response.
 
-For several observation IDs, repeat this operation and record any failures
-before analyzing the sample. One MRS FITS can contain multiple exposures;
+One MRS FITS can contain multiple exposures;
 do not treat its ``obsid`` as a unique identifier for every exposure row.
 
-``download_catalog`` retrieves a named catalog file and returns its local
-path. It uses ``verify='exception'`` and publishes the file only after the
-selected FITS verification succeeds. DR3 currently supports the verified
-``download_catalog('plan')`` product, a gzip CSV validated as a table.
-For DR10/v2.0 LRS, a verified product name is
-``dr10_v2.0_LRS_plan.fits.gz``. Obtain file product names from the selected
-release's download page; ``get_tables_metadata`` lists SQL relations, not
-download products. HTTP 200 JSON errors and recognized login redirects are
-checked before FITS validation, with text diagnostics limited to 1 MiB.
-With ``overwrite=False``, an existing file is returned without revalidation;
-the service is still contacted to resolve its name. A failed download leaves
-an existing destination intact. Downloads do not resume partial files.
+``download_catalog`` saves a named catalog product and returns its local
+path. For example:
 
-FITS verification checks structure, not scientific pixel quality. Inspect
-warnings before changing ``verify``. Headers and pixels are preserved: a
-DR4/v2 product has been observed with ``DATA_V=LAMOST DR5``; the client does
-not relabel it or substitute another release.
+.. code-block:: python
 
-Anonymous non-streaming requests use the inherited response cache, including
-``get_spectra``. This is not a persistent spectrum library. Authenticated
-requests and streaming catalog downloads bypass the cache.
+   path = lamost.download_catalog('dr10_v2.0_LRS_plan.fits.gz')
 
-Local Spectrum Processing
-=========================
+Find product names on the selected release's download page;
+``get_tables_metadata`` lists queryable tables instead. DR3 supports the
+``'plan'`` product, a gzip CSV. FITS catalog downloads use
+``verify='exception'`` by default. Existing files are reused unless
+``overwrite=True``; failed downloads leave an existing file intact.
+
+FITS verification checks file structure. Inspect warnings before changing
+``verify`` and assess pixel quality separately. Catalog downloads bypass the
+response cache and do not resume partial files.
+
+Reading Local Spectra
+=====================
 
 ``parse_lrs_spectrum`` reads the supported single-HDU image or two-HDU table
 layout and returns two arrays: wavelength and flux. It preserves flux values
@@ -447,190 +371,46 @@ FITS headers before interpreting them as calibrated flux. The simplified
 arrays do not include inverse variance or quality masks; read those from the
 original FITS when selecting pixels or propagating errors.
 
-For example, export LRS arrays locally:
+For existing local LRS and MRS FITS files:
 
 .. code-block:: python
 
-   from astropy.table import Table
-   from astroquery.nadc.lamost import parse_lrs_spectrum
+   from astroquery.nadc.lamost import parse_lrs_spectrum, parse_mrs_spectrum
 
    wavelength, flux = parse_lrs_spectrum('lrs-spectrum.fits')
-   Table({'wavelength': wavelength, 'flux': flux}).write(
-       'spectrum.csv', format='ascii.csv', overwrite=True)
+   exposures = parse_mrs_spectrum('mrs-spectrum.fits')
 
-Smoothing is a separate analysis choice. This seven-pixel median uses
-zero-padded edges; setting ``window = 15`` selects a wider filter. Neither
-result replaces the original flux:
+MRS readers support modern wavelength columns and legacy logarithmic
+wavelengths. Coadds and individual exposures retain their extension names.
+Wavelengths must be finite and positive; unsupported or ambiguous layouts
+raise ``ValueError``. Neither reader applies a velocity correction or
+scientific pixel selection.
 
-.. code-block:: python
+Tutorials and Analysis Examples
+===============================
 
-   import numpy as np
-
-   window = 7
-   samples = np.lib.stride_tricks.sliding_window_view(
-       np.pad(flux, window // 2), window)
-   smoothed_flux = np.median(samples, axis=-1)
-
-MRS supports one-row ``FLUX``/``WAVELENGTH`` vectors and historical tables
-with scalar ``FLUX``/``LOGLAM`` pixels. Logarithmic wavelengths are converted
-with ``10**LOGLAM`` in double precision. Coadds and individual exposures keep
-their extension names. The parser does not sort pixels, change the wavelength
-frame, or apply velocity corrections. Invalid layouts, ambiguous wavelength
-columns and duplicate extension names raise ``ValueError``. Wavelengths must
-be finite and positive; conversion overflow and underflow to zero are rejected.
-Errors identify the file, extension, and first invalid pixel. Flux quality
-selection belongs to the analysis.
-
-First download one MRS observation from the same DR10/v2.0 service:
-
-.. code-block:: python
-
-   mrs_files = lamost.get_spectra(1007903112, resolution='medium')
-   try:
-       mrs_files[0].writeto('mrs-spectrum.fits', overwrite=True, output_verify='fix')
-   finally:
-       for spectrum in mrs_files:
-           spectrum.close()
-
-For several local MRS files, retain each outcome so missing or invalid data
-does not disappear from the sample. This example intentionally includes a
-nonexistent filename to demonstrate the failure record:
-
-.. code-block:: python
-
-   from astropy.table import Table
-   from astroquery.nadc.lamost import parse_mrs_spectrum
-
-   spectra, rows = [], []
-   for filename in ['mrs-spectrum.fits', 'missing-mrs.fits']:
-       try:
-           spectrum = parse_mrs_spectrum(filename)
-       except (OSError, EOFError, ValueError) as error:
-           spectra.append(None)
-           rows.append((filename, 'ERROR', f'{type(error).__name__}: {error}'))
-       else:
-           spectra.append(spectrum)
-           rows.append((filename, 'COMPLETE', ''))
-   manifest = Table(rows=rows or None, names=('Local Path', 'Status', 'Message'),
-                    dtype=(str, str, str))
-   print(manifest['Local Path', 'Status', 'Message'])
-
-This loop preserves input order, records expected file and validation errors,
-and propagates unexpected exceptions. It does not repair or modify the files.
-
-Plot a local MRS file with Matplotlib, retaining the extension labels:
-
-.. code-block:: python
-
-   import matplotlib.pyplot as plt
-   from astroquery.nadc.lamost import parse_mrs_spectrum
-
-   fig, ax = plt.subplots()
-   for name, spectrum in parse_mrs_spectrum('mrs-spectrum.fits').items():
-       ax.plot(spectrum['wavelength'], spectrum['flux'], label=name)
-   ax.set(xlabel='Wavelength [Angstrom]', ylabel='Flux')
-   ax.legend()
-   fig.savefig('spectrum.png')
-   plt.close(fig)
-
-One-observation Activity Example
-================================
-
-The :download:`standalone example <lamost_activity.py>` selects DR7/v2.0,
-retrieves metadata and a spectrum for observation 54901214, verifies the
-metadata and FITS ``OBSID``, and computes the dimensionless Ca II H&K index
-``S_L`` from `Zhang et al. (2022) <https://arxiv.org/abs/2209.15255>`_. It uses
-only NumPy, Astropy, and astroquery. Configure authentication as described
-above before running this example if anonymous access is rejected. DR7/v2.0
-may require a valid token even when the DR10/v2.0 examples work anonymously.
-The observed DR7 metadata and FITS endpoints are public, but ``get_metadata``
-also uses SQL to obtain column types; that SQL request requires authentication.
-For a standalone script, set ``ASTROQUERY_NADC_LAMOST_TOKEN`` in its
-environment; a ``conf.token`` assignment in another Python process does not
-carry over to the script.
-``get_metadata`` normalizes the legacy DR7 response into a one-row table
-with named fields. The example uses its observation ID and radial velocity.
-
-Run the downloaded script to retrieve metadata and the spectrum:
-
-.. code-block:: console
-
-   $ python lamost_activity.py
-   OBSID=54901214: S_L=0.180373854
-   Published S_L=0.18038 +/- 0.003597
-
-For an existing FITS file of the same observation (54901214), run without
-networking:
-
-.. code-block:: console
-
-   $ python lamost_activity.py --filename 54901214.fits --rv -24.78
-
-The archive RV is -24.78 km/s. The example divides the vacuum wavelengths by
-``1 + RV/c`` before applying the paper's bands: 20-Angstrom rectangular
-continua centered at 4002.20 and 3902.17 Angstroms, and triangular cores
-centered at 3969.59 and 3934.78 Angstroms with FWHM 1.09 Angstroms. It uses
-linear interpolation and trapezoidal weights, then evaluates
-``S_L = (1.8 * 8 * 1.09 / 20) * (H + K) / (R + V)``.
-
-The script checks its result against the independently archived value
-``0.1803738541038765`` to ``1e-7``; this computational tolerance is separate
-from the published uncertainty. It is a fixed-observation example, not an
-uncertainty propagation or Mount Wilson calibration. All pixels supporting a
-bandpass, including the interpolation neighbours just outside its edges, must
-have finite positive flux; invalid pixels, RV or results raise ``ValueError``
-naming the band and pixel. Assess archive pixel masks and selection criteria
-for other targets.
-
-To process local observations independently, import ``measure_files`` from the
-downloaded example. Supply the archive RV in km/s and expected integer OBSID
-for each file; each identity is checked before computing its index:
-
-.. code-block:: python
-
-   from lamost_activity import measure_files
-
-   manifest = measure_files([
-       ('missing.fits', -24.78, 54901214),
-       ('54901214.fits', -24.78, 54901214),
-   ])
-   print(manifest['Local Path', 'OBSID', 'Status', 'Message', 'S_L'])
-   successful = manifest[manifest['Status'] == 'COMPLETE']
-
-Like the MRS loop above, this returns one status row per input, continues
-after file or validation errors, and propagates unexpected exceptions. Failed
-``S_L`` values are masked and displayed as ``--``. No replacement index is
-computed for a failed sample. Batch values are not compared to the fixed
-observation's reference index; the script's original single-observation command
-continues to perform that comparison.
+The `astroquery NADC LAMOST examples repository
+<https://github.com/china-vo/astroquery-nadc-lamost-examples>`_ contains complete
+workflows for catalog pagination and export, LRS export and smoothing,
+MRS batch reading and plotting, and a Ca II H&K activity-index calculation.
+The repository includes installation instructions, a standalone activity
+script, and offline test data.
 
 Failures and Diagnostics
 ========================
 
-Invalid query parameters or unknown catalog columns raise
-``InvalidQueryError``. Recognized authentication failures raise
-``LoginError``; configure a valid token and create a
-new client as described above. Recognized cases include HTTP 401/403,
-OAuth redirects, HTML META refresh to the verified login host, and service
-errors asking to check a token. Other HTML pages remain parsing errors.
-Other HTTP failures raise `requests.HTTPError`;
-error payloads returned with HTTP success raise
-``RemoteServiceError``. Both preserve available, redacted
-error details. A missing endpoint or unsupported release is a service/address
-problem and does not by itself establish that a token is required.
-
-Malformed responses, missing requested columns, failed datatype conversions,
-and VOTables that would truncate data raise
-``TableParseError``. Query and JSON metadata endpoints
-also reject empty bodies and HTML pages, including mislabeled HTML. A text
-response with column headers and zero data rows is valid, as are supported
-empty JSON and VOTable results.
-
-When response parsing fails, ``lamost.response`` retains a redacted diagnostic
-response. HTML and empty-body errors include the HTTP status, redacted URL,
-content type, and body length. Payload inspection does not test authentication,
-or data-query service availability. SQL-backed payload inspection validates
-columns using metadata, but does not execute the data query.
+``InvalidQueryError``
+    Check parameter values and catalog column names using
+    ``get_tables_metadata``.
+``LoginError``
+    Check the token and its access permissions, then create a new client.
+``requests.HTTPError`` or ``RemoteServiceError``
+    Check service availability and the selected release. A missing endpoint
+    does not necessarily mean authentication is required.
+``TableParseError``
+    The response could not be read safely. Inspect ``lamost.response``, which
+    retains a diagnostic copy with credentials redacted. Include the selected
+    release and query parameters when reporting the problem.
 
 Reference/API
 =============
