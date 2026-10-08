@@ -2,7 +2,9 @@
 """Regression cases from historical LAMOST table responses."""
 
 from pathlib import Path
+import base64
 import json
+import struct
 
 from astropy import units as u
 from astropy.table import MaskedColumn, Table
@@ -11,10 +13,99 @@ import pytest
 
 from astroquery.exceptions import LoginError, TableParseError
 from ..core import LamostClass
+from .._response_utils import widen_tabledata_strings
 from .helpers import create_mock_response
 
 
 DATA = Path(__file__).parent / 'data'
+
+
+@pytest.mark.parametrize('datatype,value', [('char', '00123&A'), ('unicodeChar', '恒星00123')])
+@pytest.mark.parametrize('arraysize', ['', " arraysize='1'", " arraysize='3'"])
+@pytest.mark.parametrize('namespace', ['', ' xmlns="http://www.ivoa.net/xml/VOTable/v1.3"'])
+def test_votable_short_strings_preserve_cells_and_metadata(datatype, value, arraysize, namespace):
+    content = f'''<VOTABLE version="1.3"{namespace}><RESOURCE><TABLE>
+      <FIELD ID="identifier" name="id" datatype="{datatype}"{arraysize}>
+        <DESCRIPTION>Archive identifier</DESCRIPTION>
+      </FIELD>
+      <FIELD name="rv" datatype="double" unit="km/s"/>
+      <FIELD name="count" datatype="int"/>
+      <DATA><TABLEDATA>
+        <TR><TD>0</TD><TD>1.5</TD><TD>0</TD></TR>
+        <TR><TD>{value.replace('&', '&amp;')}</TD><TD>2.5</TD><TD/></TR>
+      </TABLEDATA></DATA></TABLE></RESOURCE></VOTABLE>'''
+    response = create_mock_response(content=content)
+    table = LamostClass()._parse_result(response, verbose=True)
+    assert list(table['id']) == ['0', value]
+    assert table['id'].description == 'Archive identifier'
+    assert list(table['rv']) == [1.5, 2.5]
+    assert table['rv'].unit == u.km / u.s
+    assert table['count'][0] == 0
+    assert np.ma.getmaskarray(table['count']).tolist() == [False, True]
+    assert response.content == content.encode()
+
+
+@pytest.mark.parametrize('method', ['query_sql', 'query_region'])
+def test_votable_workaround_reaches_query_results(method, monkeypatch, patch_request):
+    content = b'''<VOTABLE version="1.3"><RESOURCE><TABLE>
+      <FIELD name="obsid" datatype="char" arraysize="1"/>
+      <FIELD name="gaia_source_id" datatype="char" arraysize="3"/>
+      <DATA><TABLEDATA><TR><TD>101001</TD><TD>003700975728440669184</TD></TR>
+      </TABLEDATA></DATA></TABLE></RESOURCE></VOTABLE>'''
+    response = create_mock_response(content=content, content_type='text/csv')
+    patch_request(response)
+    schema = {'obsid': {'datatype': 'long'}, 'gaia_source_id': {'datatype': 'char'}}
+    monkeypatch.setattr(LamostClass, '_catalog_schema', lambda self, *args, **kwargs: schema)
+    client = LamostClass()
+    table = (client.query_sql('SELECT obsid, gaia_source_id FROM combined', column_schema=schema)
+             if method == 'query_sql' else client.query_region('10 40', '1 arcmin'))
+    assert table['obsid'][0] == 101001
+    assert table['gaia_source_id'][0] == '003700975728440669184'
+    assert response.content == content
+
+
+@pytest.mark.parametrize('data_format', ['BINARY', 'BINARY2'])
+def test_votable_binary_strings_are_not_repaired(data_format):
+    raw = (b'\x00' if data_format == 'BINARY2' else b'') + struct.pack('>i', 6) + b'001234'
+    content = f'''<VOTABLE version="1.3"><RESOURCE><TABLE>
+      <FIELD name="id" datatype="char" arraysize="2*"/>
+      <DATA><{data_format}><STREAM encoding="base64">{base64.b64encode(raw).decode()}</STREAM>
+      </{data_format}></DATA></TABLE></RESOURCE></VOTABLE>'''.encode()
+    assert widen_tabledata_strings(content) == content
+    with pytest.raises(TableParseError, match='refusing to return truncated data'):
+        LamostClass()._parse_result(create_mock_response(content=content))
+
+
+@pytest.mark.parametrize('field,rows', [
+    ('<FIELD name="id" datatype="char" arraysize="8"/>', '<TR><TD>00123</TD></TR>'),
+    ('<FIELD name="id" datatype="char" arraysize="*"/>', '<TR><TD>00123</TD></TR>'),
+    ('<FIELD name="id" datatype="char" arraysize="2x3"/>', '<TR><TD>0012345678</TD></TR>'),
+    ('<FIELD name="n" datatype="int" arraysize="2"/>', '<TR><TD>1 2</TD></TR>'),
+    ('<FIELD name="id" datatype="char" arraysize="1"/>', ''),
+])
+def test_votable_workaround_leaves_other_layouts_unchanged(field, rows):
+    content = (f'<VOTABLE version="1.3"><RESOURCE><TABLE>{field}<DATA><TABLEDATA>{rows}'
+               '</TABLEDATA></DATA></TABLE></RESOURCE></VOTABLE>').encode()
+    assert widen_tabledata_strings(content) == content
+
+
+@pytest.mark.parametrize('row', ['<TR><TD>123</TD><TD>extra</TD></TR>', '<TR><TD><B>123</B></TD></TR>'])
+def test_votable_string_repair_requires_unambiguous_cells(row):
+    content = (f'<VOTABLE version="1.3"><RESOURCE><TABLE><FIELD name="id" datatype="char"/>'
+               f'<DATA><TABLEDATA>{row}</TABLEDATA></DATA></TABLE></RESOURCE></VOTABLE>')
+    with pytest.raises(TableParseError, match='Cannot reliably map'):
+        LamostClass()._parse_result(create_mock_response(content=content))
+
+
+def test_votable_shortened_field_lengths_preserve_recorded_cone_sample():
+    content = (DATA / 'cone_mrs_dr8.xml').read_bytes()
+    # Reproduce the server's bad length declarations using a recorded response.
+    damaged = content.replace(b'datatype="char" arraysize="*"', b'datatype="char" arraysize="1"')
+    assert damaged != content
+    client = LamostClass()
+    expected = client._parse_result(create_mock_response(content=content))
+    actual = client._parse_result(create_mock_response(content=damaged))
+    np.testing.assert_array_equal(actual.as_array(), expected.as_array())
 
 
 @pytest.mark.parametrize('body', [b'', b' \t\r\n', b'\xef\xbb\xbf \n'])
@@ -286,7 +377,7 @@ def test_votable_missing_integer_requires_reliable_scalar_mapping(fields, rows):
 ], ids=['self-closing', 'self-closing-space', 'with-child', 'paired-empty', 'arraysize-only'])
 def test_votable_field_without_datatype_is_repaired_in_every_form(field):
     # A FIELD without datatype defaults to a one-character string in astropy,
-    # which would reject the identifier below as truncated.
+    # so the missing datatype must be supplied before applying the workaround.
     content = ('<VOTABLE version="1.3" xmlns="http://www.ivoa.net/xml/VOTable/v1.3"><RESOURCE><TABLE>'
                f'{field}<DATA><TABLEDATA><TR><TD>00101001</TD></TR></TABLEDATA></DATA>'
                '</TABLE></RESOURCE></VOTABLE>')

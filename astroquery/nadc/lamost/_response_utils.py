@@ -6,11 +6,47 @@ Internal response parsing helpers for the LAMOST service.
 from __future__ import annotations
 
 import re
+from xml.etree import ElementTree
 
 
 _FIELD_START_TAG_RE = re.compile(rb"<FIELD\b([^>]*?)\s*(/?)>", re.IGNORECASE)
 _EMPTY_ARRAYSIZE_RE = re.compile(rb'arraysize=""', re.IGNORECASE)
 _ZERO_ARRAYSIZE_RE = re.compile(rb'\s+arraysize="0"', re.IGNORECASE)
+
+
+def widen_tabledata_strings(content: bytes) -> bytes:
+    """Widen undersized scalar string FIELDs using their TABLEDATA values.
+
+    This LAMOST server workaround can be removed after the archive supplies
+    correct string lengths. Binary layouts and multidimensional fields are
+    left untouched; any remaining truncation is rejected by the caller.
+    """
+    root = ElementTree.fromstring(content)
+    changed = False
+    for table in root.iterfind('.//{*}TABLE'):
+        rows = table.find('{*}DATA/{*}TABLEDATA')
+        if rows is None:
+            continue
+        fields = table.findall('{*}FIELD')
+        widths = {}
+        for i, field in enumerate(fields):
+            size = field.get('arraysize', '1')
+            if field.get('datatype') in {'char', 'unicodeChar'} and re.fullmatch(r'[0-9]+', size):
+                widths[i] = int(size)
+        if not widths:
+            continue
+        for row in rows:
+            cells = list(row)
+            if (row.tag.rsplit('}', 1)[-1] != 'TR' or len(cells) != len(fields)
+                    or any(cell.tag.rsplit('}', 1)[-1] != 'TD' or len(cell) for cell in cells)):
+                raise ValueError('Cannot reliably map LAMOST VOTable TABLEDATA cells to columns.')
+            for i in widths:
+                widths[i] = max(widths[i], len(cells[i].text or ''))
+        for i, width in widths.items():
+            if width > int(fields[i].get('arraysize', '1')):
+                fields[i].set('arraysize', str(width))
+                changed = True
+    return ElementTree.tostring(root, encoding='utf-8') if changed else content
 
 
 def response_looks_like_html(response) -> bool:

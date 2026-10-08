@@ -1029,7 +1029,7 @@ class TestLamostResultParsing:
         assert isinstance(table, Table)
         assert len(table) == 0
 
-    def test_parse_votable_result_rejects_arraysize_truncation(self):
+    def test_parse_votable_result_repairs_arraysize_truncation(self):
         truncated_votable = b"""<?xml version="1.0"?>
 <VOTABLE version="1.3" xmlns="http://www.ivoa.net/xml/VOTable/v1.3">
   <RESOURCE type="results">
@@ -1044,8 +1044,9 @@ class TestLamostResultParsing:
             content_type='application/x-votable+xml',
         )
 
-        with pytest.raises(TableParseError, match='refusing to return truncated data'):
-            LamostClass()._parse_votable_result(response)
+        table = LamostClass()._parse_votable_result(response)
+        assert list(table['obsid']) == ['101001']
+        assert response.content == truncated_votable
 
     def test_parse_votable_result_invalid_xml(self):
         """Test TableParseError on invalid XML"""

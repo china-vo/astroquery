@@ -31,7 +31,7 @@ from requests import HTTPError, Response
 from requests.structures import CaseInsensitiveDict
 
 # Local imports
-from ._response_utils import response_looks_like_html, sanitize_votable_content
+from ._response_utils import response_looks_like_html, sanitize_votable_content, widen_tabledata_strings
 from ._sql import EARLY_MRS, MODERN_CATALOGS, catalog_sql, spectral_catalog, uses_legacy_metadata
 from ._utils import (
     _append_min_constraint,
@@ -1022,14 +1022,16 @@ class LamostClass(BaseQuery):
         astroquery.exceptions.InvalidQueryError
             The radius is invalid or the requested format is unsupported.
         astroquery.exceptions.TableParseError
-            The response is malformed or would truncate string values.
+            The response is malformed or cannot be parsed without losing data.
 
         Notes
         -----
         This method retrieves one response; archive row limits still apply.
         DR3 and DR8 cone services can return VOTable despite a CSV request.
         Known ``catalogue_``/``med_catalogue_`` prefixes are retained and matched to
-        catalog types. Truncated string values are rejected in every format.
+        catalog types. Undersized fixed-length string fields in TABLEDATA are
+        widened before parsing; other cases that would truncate strings are
+        rejected.
         """
         response = self._request_query_region(
             coordinates,
@@ -2090,6 +2092,7 @@ class LamostClass(BaseQuery):
                 fix_missing_field_datatype=True,
                 fix_empty_arraysize=True,
             )
+            content = widen_tabledata_strings(content)
             tf = BytesIO(content)
             with warnings.catch_warnings(record=True) as caught_warnings:
                 warnings.simplefilter('always')
