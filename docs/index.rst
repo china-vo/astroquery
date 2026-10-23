@@ -282,7 +282,6 @@ The following modules have been completed using a common API:
   ipac/irsa/ibe/ibe.rst
   ipac/irsa/irsa.rst
   linelists/jplspec/jplspec.rst
-  nadc/lamost.rst
   magpis/magpis.rst
   mast/mast.rst
   mocserver/mocserver.rst
@@ -290,6 +289,7 @@ The following modules have been completed using a common API:
   nadc/query_guide.rst
   nadc/cstar.rst
   nadc/fashi.rst
+  nadc/lamost.rst
   nadc/legacyplate.rst
   nadc/sages.rst
   nadc/scuss.rst

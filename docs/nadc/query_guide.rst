@@ -5,6 +5,9 @@ NADC modules provide high-level methods for common queries plus direct methods
 for custom catalog searches and data-product access. The exact advanced query
 interface depends on the archive.
 
+Import the clients from ``astroquery.nadc``. The SAGES client is available as
+``astroquery.nadc.sages.Sages``.
+
 For CSTAR, FASHI, Legacy Plate, SCUSS, and SAGES, the recommended progression is:
 
 1. High-level query methods for common use cases. Users provide parameters
@@ -16,6 +19,11 @@ For CSTAR, FASHI, Legacy Plate, SCUSS, and SAGES, the recommended progression is
    ``list_columns`` to discover valid table and column names. Prefer
    ``ColumnConstraint`` over raw dictionaries when using these methods
    directly.
+
+LAMOST uses a separate archive API. Its catalog queries return one page per
+call, with a default ``max_rows=100``; further pages must be requested
+explicitly. See :doc:`lamost` for query parameters, spectrum downloads,
+and links to complete analysis tutorials.
 
 Service URL Configuration
 -------------------------
@@ -59,6 +67,12 @@ Recommended Query Methods
        ``query_sdss_spec_counterparts``; ``query_sga_counterparts``
      - FASHI HI sources and precomputed ALFALFA, SDSS, and SGA counterparts
      - ``query_table``; ``query_catalog``; ``list_coordinate_groups``
+   * - ``nadc.lamost``
+     - ``query_spectra``; ``query_stellar_parameters``;
+       ``query_repeat_observations``
+     - LRS/MRS catalog samples, stellar parameters, and repeat observations
+     - ``query_region``; ``query_sql``; ``query_catalog``;
+       ``get_tables_metadata``
    * - ``nadc.legacyplate``
      - ``query_plates``; ``query_plate_images``
      - Plate archive discovery by year, observatory, telescope, target, and
@@ -96,6 +110,11 @@ example.
      - ``query_table``
      - ``query_catalog``; ``list_coordinate_groups``
      - :doc:`fashi`
+   * - ``nadc.lamost``
+     - No
+     - ``query_catalog``; ``query_sql``; ``query_region``;
+       metadata and spectrum helpers
+     - :doc:`lamost`
    * - ``nadc.legacyplate``
      - ``query_table``
      - ``query_catalog*``; ``query_table_cone``; ``query_siap``;
