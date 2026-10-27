@@ -139,6 +139,7 @@ man_pages = [('index', project.lower(), project + u' Documentation',
 github_issues_url = 'https://github.com/astropy/astroquery/issues/'
 nitpicky = True
 nitpick_ignore = [('py:class', 'astroquery.mast.core.MastQueryWithLogin'),
+                  ('py:class', 'astroquery.nadc._query_data.QueryDataBaseQuery'),
                   # astropy interited type annotations
                   ('py:class', 'ConfigItem')]
 

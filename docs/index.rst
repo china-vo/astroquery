@@ -286,6 +286,7 @@ The following modules have been completed using a common API:
   mast/mast.rst
   mocserver/mocserver.rst
   mpc/mpc.rst
+  nadc/index.rst
   nasa_ads/nasa_ads.rst
   ipac/ned/ned.rst
   nist/nist.rst
@@ -368,6 +369,11 @@ for each source)
   vsa/vsa.rst
   xmatch/xmatch.rst
 
+The :doc:`NADC modules <nadc/index>` also provide catalogs through
+:doc:`CSTAR <nadc/cstar>`, :doc:`FASHI <nadc/fashi>`,
+:doc:`Legacy Plate <nadc/legacyplate>`, :doc:`SAGES <nadc/sages>`, and
+:doc:`SCUSS <nadc/scuss>`.
+
 Archives
 --------
 
@@ -406,6 +412,9 @@ generally return a table listing the available data first.
   skyview/skyview.rst
   ukidss/ukidss.rst
   vsa/vsa.rst
+
+The :doc:`NADC LAMOST module <nadc/lamost>` provides spectral catalogs and
+spectra from the LAMOST archive.
 
 Simulations
 -----------

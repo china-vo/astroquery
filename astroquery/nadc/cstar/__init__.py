@@ -1,0 +1,78 @@
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
+"""
+CSTAR Catalog Query Tool
+========================
+
+Search CSTAR source positions and photometry hosted by NADC. Use
+`~astroquery.nadc.cstar.CstarClass` to create a client with your authentication
+settings, then query by position, magnitude, and photometric uncertainty.
+"""
+
+from astropy import config as _config
+
+from .. import _QUERY_DATA_BASE_URL
+
+
+class Conf(_config.ConfigNamespace):
+    """
+    Configuration parameters for `astroquery.nadc.cstar`.
+    """
+
+    server = _config.ConfigItem(
+        _QUERY_DATA_BASE_URL,
+        "API base URL for the NADC Query Data service, including the version prefix.",
+    )
+
+    timeout = _config.ConfigItem(
+        60,
+        "Timeout for CSTAR queries in seconds.",
+    )
+
+    catalog = _config.ConfigItem(
+        "cstar",
+        "Default catalog name used in API paths.",
+    )
+
+    supported_catalogs = _config.ConfigItem(
+        "cstar",
+        "Comma-separated catalogs surfaced by list_catalogs().",
+    )
+
+    token = _config.ConfigItem(
+        "",
+        "Module-local authentication token override (optional). Falls back to astroquery.nadc.conf.token when unset.",
+    )
+
+    auth_method = _config.ConfigItem(
+        "bearer",
+        'Authentication method: "query" adds a token query parameter; '
+        '"bearer" sets an Authorization bearer-token header.',
+    )
+
+    debug = _config.ConfigItem(
+        False,
+        "When True, include extra HTTP response diagnostics in CSTAR exceptions.",
+    )
+
+    row_limit = _config.ConfigItem(
+        10000,
+        "Default maximum number of rows to request per page.",
+    )
+
+    pos_group = _config.ConfigItem(
+        "ra,dec",
+        "Default coordinate group used by structured spatial catalog queries.",
+    )
+
+
+conf = Conf()
+
+
+from .core import Cstar, CstarClass  # noqa: E402
+
+__all__ = [
+    "Cstar",
+    "CstarClass",
+    "Conf",
+    "conf",
+]
