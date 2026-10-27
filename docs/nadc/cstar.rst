@@ -1,201 +1,107 @@
 NADC CSTAR Queries
-======================
+==================
 
-``astroquery.nadc.cstar`` provides a thin, Astroquery-style client for the
-CSTAR catalog in NADC.
+``astroquery.nadc.cstar`` searches the CSTAR source catalog by sky position,
+magnitude, and photometric uncertainty. Queries return Astropy tables.
 
-Configuration
--------------
+Finding sources
+---------------
 
-The service endpoint and authentication token are configurable:
+Use ``query_sources`` to combine a cone search with magnitude and uncertainty
+limits. Replace ``"your-nadc-token"`` with your Query Data access token before
+running this example:
 
-.. doctest::
+.. code-block:: python
 
-  >>> from astroquery.nadc import conf as nadc_conf
-  >>> from astroquery.nadc.cstar import conf
-  >>> conf.server.startswith("https://nadc.china-vo.org/")
-  True
-  >>> # Optional shared NADC catalog-query token:
-  >>> nadc_conf.token = ''  # set a real token in your astroquery.cfg
-  >>> # Optional module-local override:
-  >>> conf.token = ''
-  >>> conf.auth_method = 'query'  # or 'bearer'
+   import astropy.units as u
+   from astropy.coordinates import SkyCoord
+   from astroquery.nadc.cstar import CstarClass
 
-You can also provide the token through shared environment variables such as
-``ASTROQUERY_NADC_TOKEN`` or module-specific variables such as
-``ASTROQUERY_CSTAR_TOKEN``. The legacy ``ASTROQUERY_CHINAVO_TOKEN`` name
-remains accepted for compatibility.
+   client = CstarClass(token="your-nadc-token")
+   center = SkyCoord(19.07925*u.deg, -87.35715556*u.deg)
+   sources = client.query_sources(
+       center, 5*u.arcsec,
+       mag_range=(10, 13.5), magerr_max=0.05,
+       columns=["id", "ra", "dec", "mag", "magerr"],
+       max_rows=100,
+   )
+   print(sources[:5])
 
-Catalog discovery is also configurable. ``conf.supported_catalogs`` controls
-which catalogs are surfaced by
-``Cstar.list_catalogs``. By default this method returns
-only catalogs declared queryable by the service; pass ``queryable_only=False``
-to include non-queryable module-supported catalogs for diagnostics. Use
-``Cstar.get_catalog_metadata`` to inspect metadata and
-the normalized ``capabilities_summary`` for a single catalog.
+An empty table means no sources matched. ``max_rows=100`` limits the result to
+100 rows; see :ref:`nadc-query-limits` for larger queries.
+The remaining examples reuse ``client`` and ``center`` from this block.
+For environment-variable tokens or timeouts, see :ref:`nadc-query-authentication`.
 
-Basic usage
------------
+``mag_range`` selects an inclusive magnitude range; ``magerr_max`` sets the
+maximum photometric uncertainty. Omit these filters for a position-only search,
+or use ``query_region(center, radius=5*u.arcsec)``.
 
-Use ``Cstar`` (a singleton instance) for quick queries.
-The underlying service uses a two-step pattern (submit query -> fetch results);
-the high-level methods hide this detail.
+Inspecting available columns
+----------------------------
 
-.. doctest::
+Use catalog discovery before choosing additional fields or constructing a
+custom query:
 
-  >>> import astropy.units as u
-  >>> from astropy.coordinates import SkyCoord
-  >>> from astroquery.nadc.cstar import Cstar
-  >>> c = SkyCoord(ra=1*u.deg, dec=2*u.deg, frame="icrs")
-  >>> # Build the request payload without hitting the network:
-  >>> payload = Cstar.query_region(c, 5*u.arcsec, get_query_payload=True)
-  >>> payload["params"]["output.fmt"]
-  'votable'
-  >>> payload["params"]["RA"], payload["params"]["DEC"]
-  (1.0, 2.0)
+.. code-block:: python
 
-Source queries
---------------
+   print(client.list_catalogs())
+   print(client.list_tables())
+   print(client.list_columns(table="catalog"))
 
-Use ``Cstar.query_sources`` for common source photometry
-queries with common magnitude and uncertainty filters.  This method keeps users
-away from the low-level ``column_constraints`` payload for the stable CSTAR
-source-table query.
+``query_table`` accepts custom columns, filters, and sorting:
 
-.. doctest::
+.. code-block:: python
 
-  >>> payload = Cstar.query_sources(
-  ...     c,
-  ...     5*u.arcsec,
-  ...     mag_range=(10, 13.5),
-  ...     magerr_max=0.05,
-  ...     columns=["id", "ra", "dec", "mag", "magerr"],
-  ...     get_query_payload=True,
-  ... )
-  >>> payload["submit"]["json"]["column_constraints"][0]["column_name"]
-  'mag'
+   from astroquery.nadc import ColumnConstraint
 
-Catalog metadata and downloads
-------------------------------
+   selected = client.query_table(
+       table="catalog",
+       coordinates=center, radius=5*u.arcsec,
+       showcol=["id", "ra", "dec", "mag"],
+       column_constraints=[ColumnConstraint.between("mag", 10, 13.5)],
+       sort="mag", order="asc", max_rows=20,
+   )
+   print(selected[:5])
 
-Use ``Cstar.get_catalog_metadata`` to inspect catalog
-capabilities such as downloadable file products:
+See :ref:`nadc-query-filters` for additional filter types and units.
 
-.. doctest::
+For rectangular areas or a list of positions, use
+``query_catalog_rectangle`` or ``query_catalog_proximity``. The default
+coordinate group is ``"ra,dec"``; use ``pos_group`` to select another group
+listed by the archive.
 
-  >>> payload = Cstar.get_catalog_metadata(get_query_payload=True)
-  >>> payload["url"].endswith("/data/api/v1.0/catalogs/cstar")
-  True
+Downloading source products
+---------------------------
 
-CSTAR file products can be downloaded individually by target ID and category,
-or batched from a list of IDs or a query result table.  When
-``get_query_payload=True`` is used, astroquery only builds the request payload;
-metadata-based category validation is performed for real download requests.
+Inspect ``client.get_catalog_metadata()`` for available product categories.
+For a source returned by the query, download its FITS product:
 
-.. doctest::
+.. code-block:: python
 
-  >>> payload = Cstar.download_file(
-  ...     "00001",
-  ...     category="fits",
-  ...     file_params={"category": "fits"},
-  ...     get_query_payload=True,
-  ... )
-  >>> payload["url"].endswith("/data/api/v1.0/catalogs/cstar/file")
-  True
-  >>> payload["params"]["category"]
-  'fits'
-  >>> batch_payload = Cstar.batch_download(
-  ...     fmt="targz",
-  ...     id_list=["00001", "00002"],
-  ...     categories=["fits", "diurnal-fits"],
-  ...     get_query_payload=True,
-  ... )
-  >>> batch_payload["json"]["categories"]
-  ['fits', 'diurnal-fits']
+   if len(sources):
+       path = client.download_file(
+           str(sources["id"][0]), category="fits",
+           out_path="cstar-source.fits", overwrite=False,
+       )
+       print(path)
 
-Advanced Queries
-----------------
+Use ``download_products`` to request products for the returned source rows:
 
-For custom catalog searches,
-``Cstar.query_catalog`` supports paging, sorting, and
-column constraints. When ``get_query_payload=True`` is used, the returned
-payload shows the submit request and the result retrieval request.
+.. code-block:: python
 
-Use the explicit helpers when you want astroquery to build the request body for
-the three supported spatial modes:
+   if len(sources):
+       path = client.download_products(
+           sources, fmt="targz", categories=["fits", "diurnal-fits"],
+           out_path="cstar-products.tar.gz", overwrite=False,
+       )
+       print(path)
 
-- ``Cstar.query_catalog_cone``
-- ``Cstar.query_catalog_rectangle``
-- ``Cstar.query_catalog_proximity``
-
-.. doctest::
-
-  >>> payload = Cstar.query_catalog_cone(c, 5*u.arcsec, get_query_payload=True)
-  >>> payload["submit"]["method"]
-  'POST'
-  >>> payload["submit"]["json"]["pos_group"]
-  'ra,dec'
-  >>> rect_payload = Cstar.query_catalog_rectangle(0, 1, -1, 1, get_query_payload=True)
-  >>> rect_payload["submit"]["json"]["pos"]["type"]
-  'rect'
-  >>> prox_payload = Cstar.query_catalog_proximity([(1, 2), (3, 4, 5)], get_query_payload=True)
-  >>> prox_payload["submit"]["json"]["pos"]["type"]
-  'proximity'
-  >>> table = Cstar.query_catalog_cone(c, 5*u.arcsec, max_rows=10)  # doctest: +SKIP
-
-Use ``Cstar.query_table`` when a query needs custom column selection, filters,
-sorting, or limits beyond ``Cstar.query_sources``. Bind the table explicitly
-when you want payload construction to stay fully offline:
-
-.. doctest::
-
-  >>> from astroquery.nadc import ColumnConstraint
-  >>> table_payload = Cstar.query_table(
-  ...     catalog="cstar",
-  ...     table="catalog",
-  ...     showcol=["ra", "dec"],
-  ...     column_constraints=[ColumnConstraint.greaterequal("ra", 0)],
-  ...     max_rows=3,
-  ...     get_query_payload=True,
-  ... )
-  >>> table_payload["submit"]["json"]["column_constraints"][0]["column_name"]
-  'ra'
-
-Structured spatial queries default to ``conf.pos_group == "ra,dec"`` for the
-``cstar`` catalog. Override ``pos_group=...`` if your deployment exposes a
-different coordinate pair such as ``"ra_obs,dec_obs"``.
-
-Use ``get_query_payload=True`` on ``Cstar.query_catalog``
-or the explicit spatial helpers when you want to inspect the submit/results
-requests without executing them.
-
-Multiple catalogs
------------------
-
-The same service can expose multiple catalogs. To reuse the same implementation
-for a different catalog, create a custom instance:
-
-.. doctest::
-
-  >>> from astroquery.nadc.cstar import CstarClass
-  >>> other_catalog = CstarClass(catalog="some-other-catalog")  # doctest: +SKIP
-
-The module-level ``Cstar.list_catalogs`` view is scoped
-to queryable catalogs from ``conf.supported_catalogs``.
-
-Choosing a query method
------------------------
-
-The CSTAR catalog provides source-level positions and photometric summary
-columns such as ``mag`` and ``magerr``. Prefer
-``Cstar.query_sources`` for that common task, then use
-``Cstar.query_catalog``,
-``Cstar.query_table``, or the explicit spatial helpers
-when a query needs custom constraints beyond ``query_sources``.
-See :doc:`query_guide` for a summary of NADC query methods.
+Both methods return a local path. See :ref:`nadc-query-downloads` for download
+scope and file replacement behavior, or :ref:`nadc-query-errors` if a request
+fails.
 
 Reference/API
-=============
+-------------
 
 .. automodapi:: astroquery.nadc.cstar
     :no-inheritance-diagram:

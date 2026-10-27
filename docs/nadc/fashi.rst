@@ -1,188 +1,151 @@
 NADC FASHI Queries
-======================
+==================
 
-``astroquery.nadc.fashi`` provides a client for the FAST All Sky HI survey
-catalog served by NADC.
+``astroquery.nadc.fashi`` searches the FAST All Sky HI survey catalog and its
+precomputed ALFALFA, SDSS, and SGA counterparts.
 
-FASHI is organized as a parent catalog with one main HI-source table and four
-child catalogs for precomputed match/counterpart data products:
+Finding HI sources
+------------------
+
+Use ``query_hi_sources`` to combine a cone search with velocity and S/N
+selections. Replace ``"your-nadc-token"`` with your Query Data access token
+before running this example:
+
+.. code-block:: python
+
+   import astropy.units as u
+   from astropy.coordinates import SkyCoord
+   from astroquery.nadc.fashi import FashiClass
+
+   client = FashiClass(token="your-nadc-token")
+   center = SkyCoord(125*u.deg, -6*u.deg)
+   sources = client.query_hi_sources(
+       center, 5*u.arcmin,
+       cz_range=(1000, 8000), snr_min=8,
+       columns=["id_fashi", "ra", "dec", "cz", "snr"],
+       max_rows=100,
+   )
+   print(sources[:5])
+
+The result is an `~astropy.table.Table`; an empty table means no sources matched.
+``max_rows=100`` limits the result to 100 rows; see :ref:`nadc-query-limits`
+for larger queries. The remaining examples reuse ``client`` and ``center``
+from this block. For environment-variable tokens or timeouts, see
+:ref:`nadc-query-authentication`.
+
+Additional filters include
+``z_range``, ``distance_range``, and ``log10mass_range``. Numeric filters use
+the catalog's column units; inspect ``list_columns`` for field descriptions.
+
+Finding catalog counterparts
+----------------------------
+
+Use the counterpart methods to retrieve existing associations in the archive:
 
 .. list-table::
    :header-rows: 1
-   :widths: 32 48 20
+   :widths: 35 40 25
 
-   * - Catalog / table
-     - Contents
-     - Spatial columns
-   * - ``FASHI`` / ``extragalactic_hi_source_catalog``
-     - Extragalactic HI source measurements, including sky position,
-       velocity/redshift, line widths, fluxes, SNR, distance, and HI mass.
-     - ``ra,dec``
-   * - ``alfalfa_crossmatch`` / ``alfalfa_crossmatch``
-     - Precomputed FASHI/ALFALFA matches.
-     - ``ra_fashi,dec_fashi`` or ``ra_alfalfa,dec_alfalfa``
-   * - ``optical_counterparts_sdss_phot`` / ``optical_counterparts_sdss_phot``
-     - SDSS photometric optical counterparts with match probability.
-     - ``ra_fashi,dec_fashi`` or ``ra_sdss,dec_sdss``
-   * - ``optical_counterparts_sdss_spec`` / ``optical_counterparts_sdss_spec``
-     - SDSS spectroscopic optical counterparts.
-     - ``ra_fashi,dec_fashi`` or ``ra_sdss,dec_sdss``
-   * - ``optical_counterparts_sga`` / ``optical_counterparts_sga``
-     - SGA optical counterparts.
-     - ``ra_fashi,dec_fashi`` or ``ra_sga,dec_sga``
+   * - Data
+     - Method
+     - Example filter
+   * - ALFALFA matches
+     - ``query_alfalfa_matches``
+     - ``agcnr_alfalfa``
+   * - SDSS photometric counterparts
+     - ``query_sdss_phot_counterparts``
+     - ``probability_min``
+   * - SDSS spectroscopic counterparts
+     - ``query_sdss_spec_counterparts``
+     - ``z_sdss_range``
+   * - SGA counterparts
+     - ``query_sga_counterparts``
+     - ``name_sga``
 
-Configuration
--------------
+For example, select SDSS photometric counterparts around the same position:
 
-The module follows the same authentication and server configuration pattern as
-the other NADC catalog modules.
+.. code-block:: python
 
-.. doctest::
+   counterparts = client.query_sdss_phot_counterparts(
+       center, 5*u.arcmin, probability_min=0.8,
+       columns=["id_fashi", "objid_sdss", "probability_sdss"],
+       max_rows=100,
+   )
+   print(counterparts[:5])
 
-  >>> from astroquery.nadc import conf as nadc_conf
-  >>> from astroquery.nadc.fashi import conf
-  >>> conf.supported_catalogs
-  'FASHI,alfalfa_crossmatch,optical_counterparts_sdss_phot,optical_counterparts_sdss_spec,optical_counterparts_sga'
-  >>> nadc_conf.token = ''  # optional shared NADC catalog-query token
-  >>> conf.token = ''          # optional FASHI-specific override
+These methods search precomputed matches; they do not perform a new cross-match
+against the external surveys.
 
-Module-specific environment variables such as ``ASTROQUERY_FASHI_TOKEN`` take
-precedence over the shared ``ASTROQUERY_NADC_TOKEN`` fallback. The legacy
-``ASTROQUERY_CHINAVO_TOKEN`` name remains accepted for compatibility.
+Choosing the spatial coordinates
+--------------------------------
 
-Catalog discovery
------------------
+Counterpart tables contain coordinates for both FASHI and the external survey.
+Spatial searches use the FASHI position by default. Pass ``pos_group`` to search
+around the external-catalog position instead:
 
-``Fashi.list_catalogs`` returns the FASHI catalog subset
-configured by ``conf.supported_catalogs`` and declared queryable by the service.
-Pass ``queryable_only=False`` to include non-queryable module-supported catalogs
-for diagnostics. Use ``Fashi.get_catalog_metadata`` to
-inspect metadata and the normalized ``capabilities_summary`` for one catalog.
+.. code-block:: python
 
-Common Queries
+   matches = client.query_alfalfa_matches(
+       center, 5*u.arcmin,
+       pos_group="ra_alfalfa,dec_alfalfa", max_rows=100,
+   )
+   print(matches[:5])
+
+Use ``list_coordinate_groups`` to inspect the choices for a table:
+
+.. code-block:: python
+
+   print(client.list_coordinate_groups(
+       catalog="alfalfa_crossmatch", table="alfalfa_crossmatch",
+   ))
+
+Custom queries
 --------------
 
-Use ``Fashi.query_hi_sources`` for the main FASHI HI
-source catalog:
+The main catalog and counterpart catalogs use the following table names:
 
-.. doctest::
+.. list-table::
+   :header-rows: 1
+   :widths: 50 50
 
-  >>> import astropy.units as u
-  >>> from astropy.coordinates import SkyCoord
-  >>> from astroquery.nadc.fashi import Fashi
-  >>> center = SkyCoord(125*u.deg, -6*u.deg)
-  >>> payload = Fashi.query_hi_sources(
-  ...     center,
-  ...     5*u.arcmin,
-  ...     cz_range=(1000, 8000),
-  ...     snr_min=8,
-  ...     columns=["id_fashi", "ra", "dec", "cz", "snr"],
-  ...     get_query_payload=True,
-  ... )
-  >>> payload["submit"]["json"]["pos_group"]
-  'ra,dec'
-  >>> payload["submit"]["json"]["column_constraints"][0]["column_name"]
-  'cz'
+   * - Catalog
+     - Table
+   * - ``FASHI``
+     - ``extragalactic_hi_source_catalog``
+   * - ``alfalfa_crossmatch``
+     - ``alfalfa_crossmatch``
+   * - ``optical_counterparts_sdss_phot``
+     - ``optical_counterparts_sdss_phot``
+   * - ``optical_counterparts_sdss_spec``
+     - ``optical_counterparts_sdss_spec``
+   * - ``optical_counterparts_sga``
+     - ``optical_counterparts_sga``
 
-The match/counterpart helpers query the four precomputed related tables:
+Use ``list_columns`` to inspect fields before choosing custom columns and
+filters. ``query_table`` accepts explicit table selection and sorting:
 
-.. doctest::
+.. code-block:: python
 
-  >>> match_payload = Fashi.query_alfalfa_matches(
-  ...     agcnr_alfalfa=5951,
-  ...     columns=["id_fashi", "agcnr_alfalfa", "cz_fashi", "cz_alfalfa"],
-  ...     get_query_payload=True,
-  ... )
-  >>> match_payload["submit"]["url"].endswith(
-  ...     "/data/api/v1.0/catalogs/alfalfa_crossmatch/tables/alfalfa_crossmatch/query"
-  ... )
-  True
+   from astroquery.nadc import ColumnConstraint
 
-  >>> phot_payload = Fashi.query_sdss_phot_counterparts(
-  ...     probability_min=0.8,
-  ...     columns=["id_fashi", "objid_sdss", "probability_sdss"],
-  ...     get_query_payload=True,
-  ... )
-  >>> phot_payload["submit"]["json"]["column_constraints"][0]["column_name"]
-  'probability_sdss'
+   print(client.list_columns(
+       catalog="FASHI", table="extragalactic_hi_source_catalog",
+   ))
+   selected = client.query_table(
+       catalog="FASHI", table="extragalactic_hi_source_catalog",
+       coordinates=center, radius=5*u.arcmin, pos_group="ra,dec",
+       showcol=["id_fashi", "ra", "dec", "snr"],
+       column_constraints=[ColumnConstraint.greaterequal("snr", 10)],
+       sort="snr", order="desc", max_rows=100,
+   )
+   print(selected[:5])
 
-  >>> spec_payload = Fashi.query_sdss_spec_counterparts(
-  ...     z_sdss_range=(0.01, 0.05),
-  ...     get_query_payload=True,
-  ... )
-  >>> spec_payload["submit"]["json"]["column_constraints"][0]["column_name"]
-  'z_sdss'
-
-  >>> sga_payload = Fashi.query_sga_counterparts(
-  ...     name_sga="PGC1035830",
-  ...     get_query_payload=True,
-  ... )
-  >>> sga_payload["submit"]["json"]["column_constraints"][0]["column_name"]
-  'name_sga'
-
-Coordinate groups
------------------
-
-The match/counterpart tables contain both FASHI and external-catalog
-coordinates. When using spatial constraints, the high-level methods default to
-the FASHI coordinate pair ``"ra_fashi,dec_fashi"``. Pass ``pos_group`` when the
-search should use the external-catalog coordinates:
-
-.. doctest::
-
-  >>> external_payload = Fashi.query_alfalfa_matches(
-  ...     center,
-  ...     5*u.arcmin,
-  ...     pos_group="ra_alfalfa,dec_alfalfa",
-  ...     get_query_payload=True,
-  ... )
-  >>> external_payload["submit"]["json"]["pos_group"]
-  'ra_alfalfa,dec_alfalfa'
-
-Advanced Queries
-----------------
-
-Use ``Fashi.query_table`` when a query needs custom column selection,
-constraints, ordering, or explicit catalog/table binding:
-
-.. doctest::
-
-  >>> from astroquery.nadc import ColumnConstraint
-  >>> table_payload = Fashi.query_table(
-  ...     catalog="FASHI",
-  ...     table="extragalactic_hi_source_catalog",
-  ...     showcol=["id_fashi", "ra", "dec", "snr"],
-  ...     column_constraints=[ColumnConstraint.greaterequal("snr", 10)],
-  ...     max_rows=5,
-  ...     get_query_payload=True,
-  ... )
-  >>> table_payload["submit"]["url"].endswith(
-  ...     "/data/api/v1.0/catalogs/FASHI/tables/extragalactic_hi_source_catalog/query"
-  ... )
-  True
-
-Pass one of the child data-product catalog names to query counterpart tables:
-
-.. doctest::
-
-  >>> child_payload = Fashi.query_table(
-  ...     catalog="alfalfa_crossmatch",
-  ...     table="alfalfa_crossmatch",
-  ...     showcol=["id_fashi", "agcnr_alfalfa", "cz_fashi", "cz_alfalfa"],
-  ...     column_constraints=[ColumnConstraint.between("cz_fashi", 1000, 9000)],
-  ...     max_rows=5,
-  ...     get_query_payload=True,
-  ... )
-  >>> child_payload["submit"]["url"].endswith(
-  ...     "/data/api/v1.0/catalogs/alfalfa_crossmatch/tables/alfalfa_crossmatch/query"
-  ... )
-  True
-
-Use ``Fashi.list_coordinate_groups`` to inspect valid
-coordinate groups for any table before building low-level spatial queries.
+See :ref:`nadc-query-filters` for additional filter types,
+:ref:`nadc-query-results` for saving results, or :ref:`nadc-query-errors` if a
+request fails.
 
 Reference/API
-=============
+-------------
 
 .. automodapi:: astroquery.nadc.fashi
     :no-inheritance-diagram:

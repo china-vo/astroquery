@@ -45,18 +45,18 @@ environment-variable support.
 Basic Usage
 ===========
 
-Use ``query_region`` to find observations around a position:
+Use ``query_region`` to find observations around a position. This complete
+example uses anonymous access to the public DR10/v2.0 service:
 
 .. doctest::
 
   >>> import astropy.units as u
   >>> from astropy.coordinates import SkyCoord
+  >>> from astroquery.nadc.lamost import LamostClass
+  >>> lamost = LamostClass(token='', data_release='dr10', sub_version='v2.0')
   >>> coord = SkyCoord(10.0004738, 40.9952444, unit='deg', frame='icrs')
-
-.. doctest-remote-data::
-
-  >>> matches = lamost.query_region(coord, radius=0.2*u.deg)
-  >>> print(matches['obsid', 'ra', 'dec'][:5])  # doctest: +IGNORE_OUTPUT
+  >>> matches = lamost.query_region(coord, radius=0.2*u.deg)  # doctest: +REMOTE_DATA
+  >>> print(matches['obsid', 'ra', 'dec'][:5])  # doctest: +REMOTE_DATA, +IGNORE_OUTPUT
 
 Catalog query methods return `~astropy.table.Table` objects. Coordinates are
 transformed to ICRS. Radii accept angular quantities such as ``5*u.arcsec``

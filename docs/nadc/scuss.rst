@@ -1,209 +1,152 @@
 NADC SCUSS Queries
-======================
+==================
 
-``astroquery.nadc.scuss`` provides a thin client for the SCUSS catalog family
-in NADC.
+``astroquery.nadc.scuss`` searches SCUSS source photometry, SDSS matches,
+proper motions, and image metadata hosted by NADC.
 
-The currently verified service catalogs are:
+Finding sources
+---------------
 
-- ``scuss``
-- ``scuss-cat``
-- ``scuss-image``
-- ``scuss-proper-motion``
+Use ``query_sources`` for a cone search with magnitude and uncertainty limits.
+Replace ``"your-nadc-token"`` with your Query Data access token before running
+this example:
 
-Configuration
--------------
+.. code-block:: python
 
-The module follows the same authentication and server configuration pattern as
-the other NADC catalog modules.
+   import astropy.units as u
+   from astropy.coordinates import SkyCoord
+   from astroquery.nadc.scuss import ScussClass
 
-.. doctest::
+   client = ScussClass(token="your-nadc-token")
+   center = SkyCoord(180*u.deg, 30*u.deg)
+   sources = client.query_sources(
+       center, 5*u.arcmin,
+       mag_range=(14, 22), magerr_max=0.1,
+       columns=["id", "ra", "dec", "psfmag", "psferr"],
+       max_rows=100,
+   )
+   print(sources[:5])
 
-  >>> from astroquery.nadc import conf as nadc_conf
-  >>> from astroquery.nadc.scuss import conf
-  >>> conf.supported_catalogs
-  'scuss,scuss-cat,scuss-image,scuss-proper-motion'
-  >>> nadc_conf.token = ''  # optional shared NADC catalog-query token
-  >>> conf.token = ''
+The result is an `~astropy.table.Table`; an empty table means no sources matched.
+``max_rows=100`` limits the result to 100 rows; see :ref:`nadc-query-limits`
+for larger queries. The remaining examples reuse ``client`` and ``center``
+from this block. For environment-variable tokens or timeouts, see
+:ref:`nadc-query-authentication`.
 
-Module-specific environment variables such as ``ASTROQUERY_SCUSS_TOKEN`` take
-precedence over the shared ``ASTROQUERY_NADC_TOKEN`` fallback. The legacy
-``ASTROQUERY_CHINAVO_TOKEN`` name remains accepted for compatibility.
+The magnitude filters apply to
+``psfmag`` and ``psferr``. Inspect ``list_columns`` for other available fields.
 
-Catalog Discovery
------------------
+SDSS matches and proper motions
+-------------------------------
 
-``Scuss`` inherits the shared NADC Query Data
-discovery methods. Use ``Scuss.list_catalogs`` to view
-the SCUSS-specific catalog subset configured by ``conf.supported_catalogs`` and
-declared queryable by the service. Pass ``queryable_only=False`` to include
-non-queryable module-supported catalogs for diagnostics. Use
-``Scuss.get_catalog_metadata`` for metadata, normalized
-``capabilities_summary``, and query-status reason for one catalog. Use
-``Scuss.list_tables`` and
-``Scuss.list_columns`` to inspect the tables and columns
-for a selected catalog.
+Use ``query_sdss_matches`` for the archive's SCUSS/SDSS DR10 match table:
 
-.. doctest::
+.. code-block:: python
 
-  >>> from astroquery.nadc.scuss import Scuss
-  >>> payload = Scuss.list_tables(catalog="scuss", get_query_payload=True)
-  >>> payload["url"].endswith("/data/api/v1.0/catalogs/scuss/tables")
-  True
+   matches = client.query_sdss_matches(
+       center, 5*u.arcmin, match_error_max=1.0,
+       columns=["sdssobjid", "match_err", "psfmag_u", "psfmag_g"],
+       max_rows=100,
+   )
+   print(matches[:5])
 
-Common Queries
---------------
+Use ``query_proper_motions`` to select motion ranges and the minimum number of
+observations used in a measurement:
 
-Use the high-level SCUSS query methods for common use cases. These methods
-select the appropriate catalog and table internally, so users do not need to
-know whether a product is stored under ``scuss.catalogue``, ``scuss.sdss10``,
-``scuss-image.image``, or ``scuss-proper-motion.proper_motion``.
-See :doc:`query_guide` for a summary of NADC query methods.
+.. code-block:: python
 
-.. doctest::
+   motions = client.query_proper_motions(
+       center, 10*u.arcmin,
+       pmra_range=(-50, 50), pmdec_range=(-50, 50),
+       obsused_min=3, max_rows=100,
+   )
+   print(motions[:5])
 
-  >>> import astropy.units as u
-  >>> from astropy.coordinates import SkyCoord
-  >>> from astroquery.nadc.scuss import Scuss
-  >>> center = SkyCoord(180*u.deg, 30*u.deg)
-  >>> sources = Scuss.query_sources(  # doctest: +SKIP
-  ...     center,
-  ...     radius=5*u.arcmin,
-  ...     mag_range=(14, 22),
-  ...     magerr_max=0.1,
-  ...     columns=["id", "ra", "dec", "psfmag", "psferr"],
-  ...     max_rows=100,
-  ... )
+Numeric ranges use the archive's column units. Check column metadata before
+combining these measurements with another catalog.
 
-Query image metadata with seeing constraints. The default output format is
-``"json"`` for this method because some SCUSS image VOTable responses are not
-currently parsed reliably by Astropy.
-
-.. doctest::
-
-  >>> images = Scuss.query_images(  # doctest: +SKIP
-  ...     center,
-  ...     radius=0.2*u.deg,
-  ...     seeing_max=2.0,
-  ...     columns=["filename", "cra", "cdec", "seeing"],
-  ...     max_rows=20,
-  ... )
-
-Query proper-motion measurements without binding the underlying
-``proper_motion`` table explicitly.
-
-.. doctest::
-
-  >>> motions = Scuss.query_proper_motions(  # doctest: +SKIP
-  ...     center,
-  ...     radius=10*u.arcmin,
-  ...     pmra_range=(-50, 50),
-  ...     pmdec_range=(-50, 50),
-  ...     obsused_min=3,
-  ...     max_rows=100,
-  ... )
-
-Query the SDSS DR10 match table through the same high-level query style.
-
-.. doctest::
-
-  >>> matches = Scuss.query_sdss_matches(  # doctest: +SKIP
-  ...     center,
-  ...     radius=5*u.arcmin,
-  ...     match_error_max=1.0,
-  ...     columns=["sdssobjid", "match_err", "psfmag_u", "psfmag_g"],
-  ...     max_rows=100,
-  ... )
-
-Advanced Queries
-----------------
-
-Use the high-level query methods first for common use cases, and use
-``Scuss.query_table`` when you need custom column selection, constraints,
-ordering, or table binding.
-
-The root ``scuss`` catalog currently exposes two tables, so bind a table name
-explicitly:
-
-.. doctest::
-
-  >>> from astroquery.nadc import ColumnConstraint
-  >>> from astroquery.nadc.scuss import Scuss
-  >>> payload = Scuss.query_table(
-  ...     catalog="scuss",
-  ...     table="catalogue",
-  ...     showcol=["id", "ra", "dec"],
-  ...     column_constraints=[ColumnConstraint.greaterequal("ra", 120)],
-  ...     max_rows=5,
-  ...     get_query_payload=True,
-  ... )
-  >>> payload["submit"]["url"].endswith(
-  ...     "/data/api/v1.0/catalogs/scuss/tables/catalogue/query"
-  ... )
-  True
-  >>> payload["submit"]["json"]["column_constraints"][0]["column_name"]
-  'ra'
-
-Single-table catalogs such as ``scuss-image`` and ``scuss-proper-motion`` can
-also be queried with ``Scuss.query_table``. Bind the
-table explicitly in offline payload examples; a live service can also resolve
-single-table catalogs through discovery.
-
-.. doctest::
-
-  >>> image_payload = Scuss.query_table(
-  ...     catalog="scuss-image",
-  ...     table="image",
-  ...     showcol=["id", "filename", "cra"],
-  ...     max_rows=5,
-  ...     get_query_payload=True,
-  ... )
-  >>> image_payload["submit"]["url"].endswith(
-  ...     "/data/api/v1.0/catalogs/scuss-image/tables/image/query"
-  ... )
-  True
-
-Catalog metadata and downloads
+Finding and downloading images
 ------------------------------
 
-Use ``Scuss.get_catalog_metadata`` to inspect whether a
-SCUSS catalog declares downloadable file products:
+``query_images`` returns image metadata, including filenames and image-center
+coordinates. Its default output format is JSON because some image VOTable
+responses cannot be parsed reliably by Astropy:
 
-.. doctest::
+.. code-block:: python
 
-  >>> metadata_payload = Scuss.get_catalog_metadata(
-  ...     catalog="scuss-image",
-  ...     get_query_payload=True,
-  ... )
-  >>> metadata_payload["url"].endswith("/data/api/v1.0/catalogs/scuss-image")
-  True
+   images = client.query_images(
+       center, 0.2*u.deg, seeing_max=2.0,
+       columns=["id", "filename", "cra", "cdec", "seeing"],
+       max_rows=20,
+   )
+   print(images[:5])
 
-For real downloads, astroquery reads the catalog metadata and maps the selected
-category to the service-specific query parameters.  For example, ``png`` files
-in ``scuss-image`` are requested with the ``path=png`` and ``ext=png`` service
-parameters, but users only need to provide the category:
+Inspect ``client.get_catalog_metadata(catalog="scuss-image")`` for available
+file categories. For a returned image, request its PNG product:
 
-.. doctest::
+.. code-block:: python
 
-  >>> payload = Scuss.download_file(
-  ...     "1",
-  ...     catalog="scuss-image",
-  ...     category="png",
-  ...     file_params={"path": "png", "ext": "png"},
-  ...     get_query_payload=True,
-  ... )
-  >>> payload["url"].endswith("/data/api/v1.0/catalogs/scuss-image/file")
-  True
-  >>> payload["params"]["path"], payload["params"]["ext"]
-  ('png', 'png')
+   if len(images):
+       path = client.download_file(
+           str(images["id"][0]), catalog="scuss-image", category="png",
+           out_path="scuss-image.png", overwrite=False,
+       )
+       print(path)
 
-The ``scuss-cat`` catalog currently exposes no table metadata via the discovery
-API. Check ``Scuss.get_catalog_metadata`` before using
-low-level query methods against it, because query support is declared by the
-service metadata.
+The client selects the download parameters for the category. The returned
+value is the local filename; no file is replaced when ``overwrite=False``.
+See :ref:`nadc-query-downloads` for batch downloads and file replacement behavior.
+
+Custom table queries
+--------------------
+
+The common methods select the following catalogs and tables:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 30 35 35
+
+   * - Data
+     - Catalog
+     - Table
+   * - Source photometry
+     - ``scuss``
+     - ``catalogue``
+   * - SDSS matches
+     - ``scuss``
+     - ``sdss10``
+   * - Image metadata
+     - ``scuss-image``
+     - ``image``
+   * - Proper motions
+     - ``scuss-proper-motion``
+     - ``proper_motion``
+
+Use ``list_tables`` and ``list_columns`` before choosing custom fields, and
+pass a table name explicitly for the multi-table ``scuss`` catalog:
+
+.. code-block:: python
+
+   from astroquery.nadc import ColumnConstraint
+
+   print(client.list_columns(catalog="scuss", table="catalogue"))
+   selected = client.query_table(
+       catalog="scuss", table="catalogue",
+       coordinates=center, radius=5*u.arcmin,
+       showcol=["id", "ra", "dec"],
+       column_constraints=[ColumnConstraint.greaterequal("ra", 120)],
+       max_rows=100,
+   )
+   print(selected[:5])
+
+For ``scuss-cat``, check ``get_catalog_metadata`` for query support. This catalog
+does not expose table metadata through the discovery API; use catalog-level
+methods only when its metadata declares catalog-query support.
+See :ref:`nadc-query-filters` for additional filter types, or
+:ref:`nadc-query-errors` if a request fails.
 
 Reference/API
-=============
+-------------
 
 .. automodapi:: astroquery.nadc.scuss
     :no-inheritance-diagram:

@@ -286,13 +286,7 @@ The following modules have been completed using a common API:
   mast/mast.rst
   mocserver/mocserver.rst
   mpc/mpc.rst
-  nadc/query_guide.rst
-  nadc/cstar.rst
-  nadc/fashi.rst
-  nadc/lamost.rst
-  nadc/legacyplate.rst
-  nadc/sages.rst
-  nadc/scuss.rst
+  nadc/index.rst
   nasa_ads/nasa_ads.rst
   ipac/ned/ned.rst
   nist/nist.rst
@@ -364,11 +358,6 @@ for each source)
   ipac/irsa/ibe/ibe.rst
   ipac/irsa/irsa.rst
   mast/mast.rst
-  nadc/cstar.rst
-  nadc/fashi.rst
-  nadc/legacyplate.rst
-  nadc/sages.rst
-  nadc/scuss.rst
   ipac/nexsci/nasa_exoplanet_archive.rst
   ipac/ned/ned.rst
   ogle/ogle.rst
@@ -379,6 +368,11 @@ for each source)
   vizier/vizier.rst
   vsa/vsa.rst
   xmatch/xmatch.rst
+
+The :doc:`NADC modules <nadc/index>` also provide catalogs through
+:doc:`CSTAR <nadc/cstar>`, :doc:`FASHI <nadc/fashi>`,
+:doc:`Legacy Plate <nadc/legacyplate>`, :doc:`SAGES <nadc/sages>`, and
+:doc:`SCUSS <nadc/scuss>`.
 
 Archives
 --------
@@ -409,7 +403,6 @@ generally return a table listing the available data first.
   heasarc/heasarc.rst
   ipac/irsa/ibe/ibe.rst
   ipac/irsa/irsa.rst
-  nadc/lamost.rst
   magpis/magpis.rst
   mast/mast.rst
   ipac/ned/ned.rst
@@ -419,6 +412,9 @@ generally return a table listing the available data first.
   skyview/skyview.rst
   ukidss/ukidss.rst
   vsa/vsa.rst
+
+The :doc:`NADC LAMOST module <nadc/lamost>` provides spectral catalogs and
+spectra from the LAMOST archive.
 
 Simulations
 -----------

@@ -1,251 +1,171 @@
-NADC Query Guide
-================
+Configuration and advanced queries
+==================================
 
-NADC modules provide high-level methods for common queries plus direct methods
-for custom catalog searches and data-product access. The exact advanced query
-interface depends on the archive.
+This optional guide covers configuration and advanced queries for
+:doc:`CSTAR <cstar>`, :doc:`FASHI <fashi>`, :doc:`Legacy Plate <legacyplate>`,
+:doc:`SAGES <sages>`, and :doc:`SCUSS <scuss>`. Start with the individual module
+pages for basic examples. LAMOST has its own configuration and pagination
+rules; see the :doc:`LAMOST documentation <lamost>`.
 
-Import the clients from ``astroquery.nadc``. The SAGES client is available as
-``astroquery.nadc.sages.Sages``.
+The examples below use CSTAR. Use the table and column names documented for
+your module when adapting them to another catalog.
 
-For CSTAR, FASHI, Legacy Plate, SCUSS, and SAGES, the recommended progression is:
+.. _nadc-query-authentication:
 
-1. High-level query methods for common use cases. Users provide parameters
-   such as magnitude ranges, image quality limits,
-   stellar-parameter ranges, or archive filters; the method selects the
-   catalog/table and builds the request payload.
-2. Direct catalog/table methods such as ``query_catalog`` and ``query_table``
-   for advanced queries and service-level access. Use ``list_tables`` and
-   ``list_columns`` to discover valid table and column names. Prefer
-   ``ColumnConstraint`` over raw dictionaries when using these methods
-   directly.
+Authentication and configuration
+--------------------------------
 
-LAMOST uses a separate archive API. Its catalog queries return one page per
-call, with a default ``max_rows=100``; further pages must be requested
-explicitly. See :doc:`lamost` for query parameters, spectrum downloads,
-and links to complete analysis tutorials.
-
-Service URL Configuration
--------------------------
-
-Query Data based modules default to the complete, versioned API root
-``https://nadc.china-vo.org/data/api/v1.0``. Set the module's ``conf.server``
-to another complete API root when testing against a local deployment, and
-create the client while the temporary setting is active:
-
-.. doctest::
-
-  >>> from astroquery.nadc.cstar import CstarClass, conf
-  >>> with conf.set_temp("server", "http://127.0.0.1:8000/data/api/v1.0"):
-  ...     client = CstarClass()
-  >>> client.URL
-  'http://127.0.0.1:8000/data/api/v1.0'
-
-Recommended Query Methods
--------------------------
-
-.. list-table::
-   :header-rows: 1
-   :widths: 18 32 30 20
-
-   * - Module
-     - Recommended high-level methods
-     - Main use case
-     - Advanced queries
-   * - ``nadc.scuss``
-     - ``query_sources``; ``query_images``; ``query_proper_motions``;
-       ``query_sdss_matches``
-     - Source photometry, image quality, proper motions, SDSS matches
-     - ``query_table``; ``query_catalog``; ``list_tables``; ``list_columns``
-   * - ``nadc.cstar``
-     - ``query_sources``
-     - CSTAR source photometry with magnitude and uncertainty filters
-     - ``query_region``; ``query_catalog``; ``query_table``
-   * - ``nadc.fashi``
-     - ``query_hi_sources``; ``query_alfalfa_matches``;
-       ``query_sdss_phot_counterparts``;
-       ``query_sdss_spec_counterparts``; ``query_sga_counterparts``
-     - FASHI HI sources and precomputed ALFALFA, SDSS, and SGA counterparts
-     - ``query_table``; ``query_catalog``; ``list_coordinate_groups``
-   * - ``nadc.lamost``
-     - ``query_spectra``; ``query_stellar_parameters``;
-       ``query_repeat_observations``
-     - LRS/MRS catalog samples, stellar parameters, and repeat observations
-     - ``query_region``; ``query_sql``; ``query_catalog``;
-       ``get_tables_metadata``
-   * - ``nadc.legacyplate``
-     - ``query_plates``; ``query_plate_images``
-     - Plate archive discovery by year, observatory, telescope, target, and
-       sky position
-     - ``query_catalog*``; ``query_table``; ``query_siap``;
-       download helpers
-   * - ``nadc.sages``
-     - ``query_uv_sources``; ``query_gri_sources``;
-       ``query_stellar_parameters``
-     - SAGES UV/gri photometry and stellar-parameter quality selection
-     - ``query_table``; ``query_catalog``; ``list_tables``; ``list_columns``
-
-Advanced Query Availability
----------------------------
-
-Detailed examples belong in the module pages because each archive
-has different catalog names, table names, spatial helpers, and data-product
-endpoints. This page keeps only the compatibility map and one representative
-example.
-
-.. list-table::
-   :header-rows: 1
-   :widths: 18 22 38 22
-
-   * - Module
-     - Table-level queries
-     - Advanced methods
-     - Detailed examples
-   * - ``nadc.cstar``
-     - ``query_table``
-     - ``query_catalog``; ``query_catalog_cone``; ``query_catalog_rectangle``;
-       ``query_catalog_proximity``
-     - :doc:`cstar`
-   * - ``nadc.fashi``
-     - ``query_table``
-     - ``query_catalog``; ``list_coordinate_groups``
-     - :doc:`fashi`
-   * - ``nadc.lamost``
-     - No
-     - ``query_catalog``; ``query_sql``; ``query_region``;
-       metadata and spectrum helpers
-     - :doc:`lamost`
-   * - ``nadc.legacyplate``
-     - ``query_table``
-     - ``query_catalog*``; ``query_table_cone``; ``query_siap``;
-       download helpers
-     - :doc:`legacyplate`
-   * - ``nadc.scuss``
-     - ``query_table``
-     - ``query_catalog``
-     - :doc:`scuss`
-   * - ``nadc.sages``
-     - ``query_table``
-     - ``query_catalog``
-     - :doc:`sages`
-
-Shared Query Data Methods
--------------------------
-
-The CSTAR, FASHI, Legacy Plate, SCUSS, and SAGES modules share the NADC Query
-Data interface. These methods are inherited by each module's query class, but
-individual catalogs can expose only a subset of the underlying service
-capabilities.
-
-.. list-table::
-   :header-rows: 1
-   :widths: 24 76
-
-   * - Method group
-     - Methods
-   * - Discovery and schema
-     - ``ping``; ``list_catalogs``; ``get_catalog_metadata``;
-       ``list_tables``; ``list_columns``; ``list_schema``;
-       ``describe_catalog``; ``list_coordinate_groups``;
-       ``list_table_links``; ``list_docs``; ``get_doc``
-   * - Spatial and direct query
-     - ``query_region``; ``query_object``; ``conesearch``;
-       ``query_siap``; ``query_catalog``; ``query_table``;
-       ``query_catalog_cone``; ``query_catalog_rectangle``;
-       ``query_catalog_proximity``; ``query_table_cone``;
-       ``query_table_rectangle``; ``query_table_proximity``
-   * - Submitted jobs and results
-     - ``submit_query``; ``submit_table_query``; ``get_results``;
-       ``get_count``
-   * - Downloads
-     - ``download_file``; ``batch_download``; ``download_products``
-
-Download methods are available only for catalogs whose
-``get_catalog_metadata`` response declares file-download support. Check the
-metadata before using ``download_file``, ``batch_download``, or
-``download_products`` against a new catalog.
-``batch_download(fmt="targz")`` validates the gzip/tar structure before
-publishing the destination file. ``fmt="samba"`` returns the service's
-submission response; the current API does not expose a documented status
-endpoint that the client can poll.
-
-Recommended Usage Pattern
--------------------------
-
-Use high-level query methods first when the operation has a stable meaning and
-represents a common query:
+The public Query Data service can require a token for catalog discovery,
+queries, and downloads. Set ``ASTROQUERY_NADC_TOKEN`` in your environment before
+creating a client, or pass your Query Data access token directly:
 
 .. doctest::
 
   >>> import astropy.units as u
   >>> from astropy.coordinates import SkyCoord
-  >>> from astroquery.nadc.cstar import Cstar
-  >>> center = SkyCoord(1*u.deg, 2*u.deg)
-  >>> payload = Cstar.query_sources(
-  ...     center,
-  ...     5*u.arcsec,
-  ...     mag_range=(10, 13.5),
-  ...     magerr_max=0.05,
-  ...     columns=["id", "ra", "dec", "mag", "magerr"],
-  ...     get_query_payload=True,
-  ... )
-  >>> payload["submit"]["json"]["column_constraints"][0]["column_name"]
-  'mag'
+  >>> from astroquery.nadc.cstar import CstarClass, conf
+  >>> with conf.set_temp("timeout", 120):
+  ...     client = CstarClass(token="your-nadc-token")
+  >>> center = SkyCoord(19.07925*u.deg, -87.35715556*u.deg)
 
-Use direct catalog/table methods with ``ColumnConstraint`` for advanced queries
-that need a custom combination of columns, constraints, sort order, and spatial
-selection:
+Replace ``"your-nadc-token"`` with your access token before executing requests.
+All subsequent examples use this same ``client``. When a token is configured
+through the environment or ``conf.token``, omit the constructor's token argument.
+
+A constructor token takes precedence over ``conf.token``, the shared
+``astroquery.nadc.conf.token``, module-specific environment variables, and the
+shared environment token, in that order. Module-specific variables include
+``ASTROQUERY_CSTAR_TOKEN``, ``ASTROQUERY_FASHI_TOKEN``,
+``ASTROQUERY_LEGACYPLATE_TOKEN``, ``ASTROQUERY_SAGES_TOKEN``, and
+``ASTROQUERY_SCUSS_TOKEN``. Pass ``token=""`` to request anonymous access.
+
+The default authentication method is ``"bearer"``. Pass
+``auth_method="query"`` for a service that requires a token query parameter.
+The server URL, timeout, and token are read when a client is created; create a
+new instance after changing those settings. For another deployment,
+``conf.server`` must contain the complete API root, including
+``/data/api/v1.0``.
+
+.. _nadc-query-filters:
+
+Custom columns and filters
+--------------------------
+
+Use ``list_tables`` and ``list_columns`` to inspect a catalog. Then use
+``query_table`` for a named table, or ``query_catalog`` for a catalog-wide
+selection. ``ColumnConstraint`` provides named constructors for filters:
+
+.. code-block:: python
+
+   from astroquery.nadc import ColumnConstraint
+
+   print(client.list_tables())
+   print(client.list_columns(table="catalog"))
+   selected = client.query_table(
+       table="catalog",
+       coordinates=center, radius=5*u.arcsec,
+       showcol=["id", "ra", "dec", "mag"],
+       column_constraints=[ColumnConstraint.between("mag", 10, 13.5)],
+       sort="mag", order="asc", max_rows=100,
+   )
+   print(selected[:5])
+
+Use column names from the selected catalog and supply range bounds in lower,
+upper order. ``ColumnConstraint`` constructs filters; it does not check whether
+their values are appropriate for a catalog. See :ref:`nadc-filter-reference`
+for the available comparisons.
+
+Use angular quantities or strings such as ``"5 arcsec"`` for spatial radii.
+Bare radii mean arcseconds for these five modules; bare SIAP sizes and rectangle
+coordinates mean degrees. Numeric column filters use the archive's column
+units. Inspect ``list_columns`` for names, descriptions, and units before
+choosing custom filters.
+
+For an offline request preview, add ``get_query_payload=True``:
 
 .. doctest::
 
-  >>> from astroquery.nadc import ColumnConstraint
-  >>> from astroquery.nadc.legacyplate import Legacyplate
-  >>> payload = Legacyplate.query_table(
-  ...     catalog="legacyplate-image",
-  ...     table="image",
-  ...     showcol=["id", "year", "observat"],
-  ...     column_constraints=[
-  ...         ColumnConstraint.greaterequal("year", 1950),
-  ...         ColumnConstraint.equal("observat", "Naoc"),
-  ...     ],
-  ...     sort="year",
-  ...     order="desc",
-  ...     max_rows=10,
-  ...     get_query_payload=True,
-  ... )
-  >>> payload["submit"]["json"]["column_constraints"][0]["column_name"]
-  'year'
+  >>> preview = client.query_sources(center, "5 arcsec", max_rows=10,
+  ...                                get_query_payload=True)
+  >>> isinstance(preview, dict)
+  True
 
-Long-running Query Data requests
---------------------------------
+This returns request descriptions without executing the query. Previews can
+contain authentication credentials; remove those before sharing them.
 
-Query Data based modules use synchronous HTTP requests. Methods such as
-``query_catalog*`` and ``query_table*`` submit a service-side query and then
-immediately fetch result pages; astroquery does not run a separate background
-polling loop for long server-side jobs.
+.. _nadc-query-results:
 
-For interactive work, keep catalog searches bounded with spatial constraints,
-column constraints, explicit table selection, ``showcol``, and a small
-``max_rows``. The default row limit comes from the module configuration
-``conf.row_limit``; passing ``max_rows=-1`` requests all pages and can be slow
-for large result sets.
+Working with results
+--------------------
 
-For broad or reusable queries, submit the query first and keep the returned
-``sqlid``:
+Catalog queries return an `~astropy.table.Table`. An empty table means that
+no rows matched. Inspect or save the result of the custom query above:
 
-.. doctest::
+.. code-block:: python
 
-  >>> from astroquery.nadc.scuss import Scuss
-  >>> job = Scuss.submit_query({"output.fmt": "html"}, catalog="scuss")  # doctest: +SKIP
-  >>> sqlid = job["sqlid"]  # doctest: +SKIP
-  >>> table = Scuss.get_results(sqlid, fmt="json", rows=100)  # doctest: +SKIP
+   print(selected.colnames)
+   if len(selected):
+       print(selected["id", "mag"][:5])
+   selected.write("cstar-sources.ecsv", format="ascii.ecsv", overwrite=False)
 
-The ``sqlid`` can also be passed to ``get_count`` and the download helpers when
-the target catalog supports those operations. Counts and downloads still depend
-on the size of the query represented by the ``sqlid``. Increasing
-``conf.timeout`` can help when the service completes within the new per-request
-timeout, but it does not guarantee that an unbounded or very broad query will
-eventually return. Prefer constrained SQLIDs for smoke tests and examples.
+Choose a new filename if it already exists, or use ``overwrite=True`` when you
+intend to replace it.
 
-Use direct query methods when a high-level method does not expose the needed
-behavior.
+Catalog queries preserve identifiers declared as text, including leading zeros.
+When calling ``get_results`` directly, CSV and tab-separated identifiers may
+instead be inferred as numbers. Prefer JSON or VOTable with declared types when
+the service offers them, and check identifier columns before joining catalogs.
+
+.. _nadc-query-limits:
+
+Row limits and long queries
+---------------------------
+
+``max_rows`` limits the rows retrieved by a query. The default is the module's
+``conf.row_limit`` (10,000); ``max_rows=-1`` retrieves all pages. ``page_size``
+controls rows requested per page. A row limit reduces data transfer, but may
+not reduce the server's work for a broad selection. Prefer spatial and column
+filters for large catalogs.
+
+Requests run synchronously. Increasing ``conf.timeout`` before creating a
+client allows a longer wait per request, but does not guarantee that a broad
+query will finish. For submitted jobs, ``submit_query`` and
+``submit_table_query`` return a ``sqlid`` that can be passed to ``get_results``
+or ``get_count``. The client does not poll a separate job-status endpoint.
+
+.. _nadc-query-downloads:
+
+Downloading products
+--------------------
+
+File downloads are available only for catalogs that declare them in
+``get_catalog_metadata``. The module pages show supported products and examples.
+Use ``download_products`` with query results to download the returned rows.
+A batch download using ``sqlid`` can instead cover all matches in the submitted
+query, independently of ``max_rows``.
+
+Downloads return a local path. Specify ``out_path`` to choose the destination
+and ``overwrite=False`` to keep an existing file. Failed downloads leave an
+existing destination intact. Choose ``targz`` to download an archive, or
+``urllist`` to save download links. ``samba`` returns a submission response;
+the client cannot check whether that transfer has finished.
+
+.. _nadc-query-errors:
+
+Handling failures
+-----------------
+
+``LoginError`` means that authentication is required or needs attention. Check
+the token and permissions, then create a new client. ``InvalidQueryError``
+indicates an invalid parameter or unsupported catalog operation.
+``requests.HTTPError`` and ``RemoteServiceError`` report service failures;
+``TableParseError`` means a response could not be read as the requested data.
+Use ``cache=False`` to request fresh query or metadata responses when needed.
+
+.. _nadc-filter-reference:
+
+Filter reference
+----------------
+
+.. autoclass:: astroquery.nadc.ColumnConstraint
+   :members: equal, notequal, less, lessequal, greater, greaterequal, between, contains, in_
