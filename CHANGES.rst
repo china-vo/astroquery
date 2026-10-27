@@ -34,7 +34,7 @@ nadc
 ^^^^
 
 - New QueryData clients for the NADC CSTAR, FASHI, Legacy Plate, SAGES, and
-  SCUSS services. [#2]
+  SCUSS services. [#2 in china-vo/astroquery]
 
 nrao
 ^^^^
