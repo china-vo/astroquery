@@ -91,16 +91,12 @@ class LegacyplateClass(QueryDataBaseQuery):
 
     Examples
     --------
-    Filter plates observed at NAOC from 1950 onwards, sorted by year:
+    Select plates observed at NAOC between 1950 and 1970, sorted by year:
 
-    >>> from astroquery.nadc import ColumnConstraint
-    >>> from astroquery.nadc.legacyplate import Legacyplate
-    >>> results = Legacyplate.query_catalog(  # doctest: +SKIP
-    ...     catalog="legacyplateedr",
-    ...     column_constraints=[
-    ...         ColumnConstraint.greaterequal("year", "1950"),
-    ...         ColumnConstraint.equal("observat", "Naoc"),
-    ...     ],
+    >>> from astroquery.nadc.legacyplate import LegacyplateClass
+    >>> client = LegacyplateClass()
+    >>> results = client.query_plates(  # doctest: +SKIP
+    ...     year_range=(1950, 1970), observatory="Naoc",
     ...     sort="year",
     ...     order="desc",
     ...     max_rows=20,
@@ -115,9 +111,9 @@ class LegacyplateClass(QueryDataBaseQuery):
     catalogs in the discovery table.
 
     The ``column_constraints`` format follows the OpenAPI ``ColumnConstraint``
-    schema.  Use the ``ColumnConstraint`` factory class for
-    validation and clearer examples, or pass raw dicts with required keys
-    ``column_name`` and ``operation``.
+    schema. Use ``ColumnConstraint`` to construct filters, or pass dictionaries
+    with the required keys ``column_name`` and ``operation``. Choose column
+    names and values appropriate for the selected catalog.
     """
 
     CONF = conf
@@ -144,7 +140,7 @@ class LegacyplateClass(QueryDataBaseQuery):
     def query_plates(
         self,
         coordinates=None,
-        radius: Optional[Union[u.Quantity, float]] = None,
+        radius: Optional[Union[u.Quantity, float, str]] = None,
         *,
         year_range: Optional[Sequence[int]] = None,
         observatory: Optional[str] = None,
@@ -234,7 +230,7 @@ class LegacyplateClass(QueryDataBaseQuery):
     def query_plate_images(
         self,
         coordinates=None,
-        radius: Optional[Union[u.Quantity, float]] = None,
+        radius: Optional[Union[u.Quantity, float, str]] = None,
         *,
         year_range: Optional[Sequence[int]] = None,
         observatory: Optional[str] = None,

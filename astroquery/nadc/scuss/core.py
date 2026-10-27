@@ -52,16 +52,15 @@ class ScussClass(QueryDataBaseQuery):
 
     Notes
     -----
-    The verified SCUSS catalog family currently consists of four catalog names:
-    ``scuss`` (multi-table), ``scuss-cat`` (catalog-level query only in current
-    discovery responses), ``scuss-image`` (single-table), and
-    ``scuss-proper-motion`` (single-table).
+    Use ``query_sources`` for photometry, ``query_sdss_matches`` for existing
+    SDSS associations, ``query_images`` for image metadata, and
+    ``query_proper_motions`` for motion measurements. For custom queries in
+    the multi-table ``scuss`` catalog, pass a table such as ``"catalogue"``
+    explicitly to ``query_table``.
 
-    When working with the multi-table ``scuss`` catalog, pass the target table
-    explicitly to ``query_table``, for example
-    ``Scuss.query_table(catalog="scuss", table="catalogue")``.
-    The ``scuss-cat`` catalog remains available for catalog-level query methods,
-    but does not currently expose table metadata through discovery methods.
+    ``scuss-cat`` does not expose table metadata through the discovery API.
+    Inspect ``get_catalog_metadata`` for query support before choosing a
+    method for this catalog.
     """
 
     CONF = conf

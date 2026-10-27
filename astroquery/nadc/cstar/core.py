@@ -58,17 +58,10 @@ class CstarClass(QueryDataBaseQuery):
 
     Notes
     -----
-    The underlying service supports multiple catalogs.  This class can be
-    instantiated with a different ``catalog`` name to reuse the client code
-    for other catalogs exposed by the same API:
-
-    >>> from astroquery.nadc.cstar import CstarClass
-    >>> other = CstarClass(catalog="some-other-catalog")  # doctest: +SKIP
-
-    Internally this client is already parameterized by ``catalog``. If future
-    NADC catalog modules expose the same query/auth/result behavior, prefer
-    thin wrappers with different defaults before introducing a shared base
-    class.
+    Use ``query_sources`` to select sources by position, magnitude, and
+    photometric uncertainty. Use ``list_columns`` to inspect available fields
+    before building a custom catalog query. The ``catalog`` constructor
+    argument selects a catalog served by the configured NADC endpoint.
     """
 
     CONF = conf

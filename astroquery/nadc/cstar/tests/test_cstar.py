@@ -1,15 +1,17 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
 import json
+from urllib.parse import quote
 
 import pytest
 
 import astropy.units as u
 import astropy.coordinates as coord
 from astropy.table import Table
-from requests import HTTPError
+from requests import HTTPError, Request
 
 import astroquery.nadc._query_data as query_data_module
+from astroquery import log
 from ....exceptions import InvalidQueryError, LoginError, RemoteServiceError, TableParseError
 from astroquery.nadc import conf as nadc_conf
 from astroquery.nadc._query_data import _drop_none, _table_from_list_of_dicts
@@ -1479,6 +1481,8 @@ def test_parse_result_csv_and_json_variants(cstar):
         MockResponse(b"\xef\xbb\xbfa,b\n1,2\n", url="http://dummy", content_type="text/csv")
     )
     assert csv_table.colnames == ["a", "b"]
+    assert csv_table["a"].dtype.kind in "iu"
+    assert csv_table["a"][0] == 1
 
     json_list = cstar._parse_result(json_response([{"a": 1}, {"a": 2}]))
     assert list(json_list["a"]) == [1, 2]
@@ -1596,3 +1600,70 @@ def test_debug_response_url_redacts_token():
 def test_parse_result_error_paths(cstar, response, exception_type, match):
     with pytest.raises(exception_type, match=match):
         cstar._parse_result(response)
+
+
+@pytest.mark.parametrize("level", ["DEBUG", 5])
+def test_debug_logging_redacts_credentials(caplog, level):
+    token = "synthetic-nadc-token+/="
+    response = json_response({"message": f"token={token}"})
+    response.reason = "OK"
+    response.request = Request(
+        "POST", f"https://example.invalid/query?token={quote(token, safe='')}",
+        headers={"Authorization": f"Bearer {token}"}, json={"token": token},
+    ).prepare()
+
+    with caplog.at_level(level, logger=log.name):
+        CstarClass(token=token)._response_hook(response)
+
+    assert caplog.records
+    assert token not in caplog.text
+    assert quote(token, safe="") not in caplog.text
+    assert "https://example.invalid/query" in caplog.text
+
+
+@pytest.mark.parametrize("fmt, content_type", [("csv", "text/csv"), ("txt", "text/plain")])
+def test_results_do_not_read_response_as_local_file(cstar, monkeypatch, tmp_path, fmt, content_type):
+    local_file = tmp_path / "local-only.csv"
+    local_file.write_text("private\nlocal-only-marker\n")
+    response = MockResponse(str(local_file).encode(), url="http://dummy", content_type=content_type)
+    monkeypatch.setattr(cstar, "_get_results_response", lambda *args, **kwargs: response)
+
+    result = cstar.get_results(123, fmt=fmt)
+
+    assert len(result) == 0
+    assert result.colnames == [str(local_file)]
+
+
+@pytest.mark.parametrize("fmt, content_type, delimiter", [("csv", "text/csv", ","), ("txt", "text/plain", "\t")])
+def test_text_catalog_results_preserve_character_ids(cstar, monkeypatch, fmt, content_type, delimiter):
+    columns = ["source_id", "count", "mag"]
+    job = {"sqlid": 7, "metacols": [
+        {"tblname": "catalog", "colname": name, "datatype": datatype}
+        for name, datatype in zip(columns, ["char", "long", "double"])
+    ]}
+    content = delimiter.join("catalog." + name for name in columns) + "\n"
+    content += delimiter.join(["00001", "2", "12.5"]) + "\n"
+    response = MockResponse(content.encode(), url="http://dummy", content_type=content_type)
+    monkeypatch.setattr(cstar, "_query_schema_columns", lambda **kwargs: set(columns))
+    monkeypatch.setattr(cstar, "_submit_catalog_job", lambda *args, **kwargs: job)
+    monkeypatch.setattr(cstar, "_get_results_response", lambda *args, **kwargs: response)
+
+    result = cstar.query_sources(columns=columns, output_format=fmt, max_rows=1)
+
+    assert result["source_id"][0] == "00001"
+    assert result["count"].dtype.kind in "iu"
+    assert result["count"][0] == 2
+    assert result["mag"].dtype.kind == "f"
+    assert result["mag"][0] == 12.5
+
+
+@pytest.mark.parametrize("radius", [5, 5 * u.arcsec, "5 arcsec", "0.001388888888888889 deg"])
+def test_queries_accept_equivalent_angular_radii(cstar, radius):
+    center = coord.SkyCoord(1, 2, unit="deg")
+    region = cstar.query_region(center, radius, get_query_payload=True)
+    table = cstar.query_table_cone(center, radius, table="catalog", get_query_payload=True)
+    sources = cstar.query_sources(center, radius, get_query_payload=True)
+
+    assert region["params"]["SR"] == pytest.approx(5 / 3600)
+    assert table["params"]["SR"] == pytest.approx(5 / 3600)
+    assert sources["submit"]["json"]["pos"]["cone"]["radius"] == pytest.approx(5)

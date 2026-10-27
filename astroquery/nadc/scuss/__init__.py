@@ -3,13 +3,9 @@
 SCUSS Catalog Query Tool
 ========================
 
-This module provides access to SCUSS-related catalogs served by the NADC
-Query Data Access OpenAPI service.
-
-The currently verified service catalogs are ``scuss``, ``scuss-cat``,
-``scuss-image``, and ``scuss-proper-motion``. The root ``scuss`` catalog is a
-multi-table catalog, while ``scuss-cat`` currently exposes no table metadata
-through the discovery API.
+Search SCUSS source photometry, SDSS matches, proper motions, and image metadata
+hosted by NADC. Queries return Astropy tables; downloadable image products can
+be selected from their metadata.
 """
 
 from astropy import config as _config

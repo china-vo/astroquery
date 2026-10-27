@@ -3,12 +3,9 @@
 Legacy Plate Catalog Query Tool
 ===============================
 
-This module provides access to legacy plate catalogs served by the NADC
-Query Data Access OpenAPI service.
-
-The implementation shares the same protocol as `astroquery.nadc.cstar`, but
-defaults to the ``legacyplate`` catalog family and filters catalog discovery to
-the catalogs surfaced by this module.
+Search photographic plate records and digitized images hosted by NADC.
+Use archive fields or sky positions to select records, then download products
+associated with the returned images.
 """
 
 from astropy import config as _config

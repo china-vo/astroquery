@@ -59,16 +59,10 @@ class SagesClass(QueryDataBaseQuery):
 
     Notes
     -----
-    The verified service snapshot bundled with this repository currently
-    exposes two SAGES-related catalog names: ``SAGES-DR1`` and
-    ``SAGES-StellarParameters``. Both are classified as plain ``catalog``
-    products in the discovery snapshot, so this module intentionally reuses the
-    shared Query Data catalog workflow without image- or spectrum-specific
-    wrappers.
-
-    The public NADC resource page for DOI ``10.12149/100876`` describes the
-    underlying data release as DR1 plus DR1s data products, but only the two
-    catalog names above appear in the verified service catalog snapshot.
+    ``query_uv_sources`` and ``query_gri_sources`` select photometric records
+    from ``SAGES-DR1``. ``query_stellar_parameters`` selects records from the
+    ``sages_param`` table in ``SAGES-StellarParameters``. Use ``list_columns``
+    to inspect fields and units before choosing custom filters.
     """
 
     CONF = conf

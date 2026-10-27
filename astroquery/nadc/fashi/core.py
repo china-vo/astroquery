@@ -68,10 +68,10 @@ class FashiClass(QueryDataBaseQuery):
 
     Notes
     -----
-    The FASHI catalog currently exposes one main HI-source table plus four
-    precomputed match/counterpart tables.  Match tables contain both FASHI and
-    external-catalog coordinates, so spatial queries should select the intended
-    coordinate group explicitly when using low-level methods.
+    Use ``query_hi_sources`` for HI-source records and the counterpart methods
+    for precomputed catalog associations. Counterpart searches use FASHI
+    coordinates by default; pass ``pos_group`` to select the external-catalog
+    coordinates instead.
     """
 
     CONF = conf

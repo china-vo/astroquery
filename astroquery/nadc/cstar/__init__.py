@@ -3,13 +3,9 @@
 CSTAR Catalog Query Tool
 ========================
 
-This module provides access to the CSTAR catalog served by the NADC
-Query Data Access OpenAPI service.
-
-The underlying service supports multiple catalogs.  The implementation here
-defaults to the ``cstar`` catalog, but `~astroquery.nadc.cstar.CstarClass`
-can be instantiated with a different catalog name to reuse the same client
-code for other catalogs exposed by the same API.
+Search CSTAR source positions and photometry hosted by NADC. Use
+`~astroquery.nadc.cstar.CstarClass` to create a client with your authentication
+settings, then query by position, magnitude, and photometric uncertainty.
 """
 
 from astropy import config as _config

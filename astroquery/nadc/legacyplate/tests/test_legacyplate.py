@@ -741,6 +741,41 @@ def test_download_file_writes_to_requested_path(tmp_path, legacyplate):
     assert destination.read_bytes() == b"plate-bytes"
 
 
+@pytest.mark.parametrize(
+    ("content_type", "content"),
+    [
+        ("text/html", b"Service temporarily unavailable"),
+        ("application/octet-stream", b"\xef\xbb\xbf  <!DOCTYPE html><html>Service temporarily unavailable</html>"),
+    ],
+)
+@pytest.mark.parametrize("existing", [False, True])
+def test_download_file_rejects_html_without_publishing(
+    tmp_path, legacyplate, monkeypatch, content_type, content, existing
+):
+    destination = tmp_path / "plate.fits"
+    if existing:
+        destination.write_bytes(b"original-local-data")
+    response = MockResponse(
+        content,
+        url="http://dummy.example/data/api/v1.0/catalogs/legacyplate-image/file",
+        content_type=content_type,
+    )
+    original_request = legacyplate._request
+
+    def fake_request(method, url, **kwargs):
+        if url.endswith("/file"):
+            return response
+        return original_request(method, url, **kwargs)
+
+    monkeypatch.setattr(legacyplate, "_request", fake_request)
+
+    with pytest.raises(RemoteServiceError, match="HTML"):
+        legacyplate.download_file("plate-1", catalog="legacyplate-image", category="fits", out_path=destination)
+
+    assert not destination.exists() or destination.read_bytes() == b"original-local-data"
+    assert not destination.with_name("plate.fits.tmp").exists()
+
+
 def test_download_file_payload_marks_streaming(legacyplate):
     payload = legacyplate.download_file(
         "plate-1",

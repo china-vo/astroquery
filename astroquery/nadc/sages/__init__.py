@@ -3,11 +3,9 @@
 SAGES Catalog Query Tool
 ========================
 
-This module provides access to the SAGES-related catalogs currently exposed by
-the NADC Query Data Access OpenAPI service.
-
-The repository's verified service snapshot currently surfaces exactly two
-SAGES catalog names: ``SAGES-DR1`` and ``SAGES-StellarParameters``.
+Search SAGES UV/gri photometry and stellar parameters hosted by NADC.
+Photometric queries use ``SAGES-DR1``; stellar-parameter queries use
+``SAGES-StellarParameters``.
 """
 
 from astropy import config as _config

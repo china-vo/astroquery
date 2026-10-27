@@ -6,7 +6,7 @@ Internal helpers for NADC Query Data Access OpenAPI modules.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from io import BytesIO
+from io import BytesIO, StringIO
 import json
 import os
 from pathlib import Path
@@ -19,6 +19,7 @@ from typing import (
 from urllib.parse import parse_qsl, unquote, urlencode, urljoin, urlsplit, urlunsplit
 
 import astropy.units as u
+from astropy.coordinates import Angle
 from astropy.io import ascii
 from astropy.io.votable import parse as parse_votable
 from astropy.io.votable import parse_single_table
@@ -27,6 +28,7 @@ from requests import HTTPError
 
 from . import conf as nadc_conf
 from ._response_utils import response_looks_like_html, sanitize_votable_content
+from .. import log
 from ..exceptions import InvalidQueryError, LoginError, RemoteServiceError, TableParseError
 from ..query import BaseQuery
 from ..utils import commons
@@ -307,6 +309,7 @@ ConstraintOperation = Literal[
     "less", "lessequal",
     "greater", "greaterequal",
     "between",
+    "contains",
     "in",
 ]
 
@@ -315,9 +318,10 @@ ConstraintOperation = Literal[
 class ColumnConstraint:
     """A single column-level filter for catalog queries.
 
-    Instead of building raw dicts, use factory class methods such as
-    `ColumnConstraint.equal("year", "1960")` for validation and clearer
-    examples.
+    Use named constructors such as ``ColumnConstraint.equal("year", "1960")``
+    to build filters. Choose column names from the catalog metadata and supply
+    values in the archive's column units. These constructors do not validate
+    whether the values are appropriate for a catalog.
 
     Parameters
     ----------
@@ -325,7 +329,7 @@ class ColumnConstraint:
         Column name to filter on (e.g. ``"year"``, ``"observat"``).
     operation : str
         One of ``equal``, ``notequal``, ``less``, ``lessequal``, ``greater``,
-        ``greaterequal``, ``between``, ``in``.
+        ``greaterequal``, ``between``, ``contains``, ``in``.
     constraint : str or None
         Value for single-value operations (``equal``, ``notequal``, etc.).
     min : float or None
@@ -518,7 +522,7 @@ class ColumnConstraint:
             Substring that must occur in the column value.
 
         Returns
-        ------
+        -------
         ColumnConstraint
             Constraint representing a substring match.
         """
@@ -644,6 +648,11 @@ class QueryDataBaseQuery(BaseQuery):
 
         if self.auth_method not in {"query", "bearer"}:
             raise ValueError('auth_method must be "query" or "bearer".')
+
+    def _response_hook(self, response, *args, **kwargs):
+        # BaseQuery logs raw request headers and bodies, which can contain tokens.
+        log.debug("%s HTTP %s %s: %s", self.name, response.request.method,
+                  _redact_url(response.request.url), response.status_code)
 
     @staticmethod
     def _parse_coordinates(value):
@@ -1527,7 +1536,7 @@ class QueryDataBaseQuery(BaseQuery):
         self,
         ra: float,
         dec: float,
-        radius: Union[u.Quantity, float],
+        radius: Union[u.Quantity, float, str],
         *,
         catalog: Optional[str] = None,
         verb: Optional[int] = None,
@@ -1544,10 +1553,7 @@ class QueryDataBaseQuery(BaseQuery):
                 "conesearch output_format must be one of: txt, csv, json, votable."
             )
 
-        if isinstance(radius, u.Quantity):
-            sr_deg = float(radius.to_value(u.deg))
-        else:
-            sr_deg = float(radius) * u.arcsec.to(u.deg)
+        sr_deg = self._to_arcsec(radius, name="radius") * u.arcsec.to(u.deg)
 
         params: Dict[str, Any] = _drop_none(
             {
@@ -1569,7 +1575,7 @@ class QueryDataBaseQuery(BaseQuery):
         self,
         ra: float,
         dec: float,
-        radius: Union[u.Quantity, float],
+        radius: Union[u.Quantity, float, str],
         *,
         catalog: Optional[str] = None,
         verb: Optional[int] = None,
@@ -1596,7 +1602,7 @@ class QueryDataBaseQuery(BaseQuery):
         self,
         ra: float,
         dec: float,
-        radius: Union[u.Quantity, float],
+        radius: Union[u.Quantity, float, str],
         *,
         table: str,
         catalog: Optional[str] = None,
@@ -1617,10 +1623,7 @@ class QueryDataBaseQuery(BaseQuery):
                 "table conesearch output_format must be one of: txt, csv, json, votable."
             )
 
-        if isinstance(radius, u.Quantity):
-            sr_deg = float(radius.to_value(u.deg))
-        else:
-            sr_deg = float(radius) * u.arcsec.to(u.deg)
+        sr_deg = self._to_arcsec(radius, name="radius") * u.arcsec.to(u.deg)
 
         params: Dict[str, Any] = _drop_none(
             {
@@ -1642,7 +1645,7 @@ class QueryDataBaseQuery(BaseQuery):
     def query_table_cone(
         self,
         coordinates,
-        radius: Union[u.Quantity, float],
+        radius: Union[u.Quantity, float, str],
         *,
         table: Optional[str] = None,
         catalog: Optional[str] = None,
@@ -1679,10 +1682,10 @@ class QueryDataBaseQuery(BaseQuery):
 
     def query_table_rectangle(
         self,
-        ra_min: Union[u.Quantity, float],
-        ra_max: Union[u.Quantity, float],
-        dec_min: Union[u.Quantity, float],
-        dec_max: Union[u.Quantity, float],
+        ra_min: Union[u.Quantity, float, str],
+        ra_max: Union[u.Quantity, float, str],
+        dec_min: Union[u.Quantity, float, str],
+        dec_max: Union[u.Quantity, float, str],
         *,
         table: Optional[str] = None,
         catalog: Optional[str] = None,
@@ -1721,7 +1724,7 @@ class QueryDataBaseQuery(BaseQuery):
         *,
         table: Optional[str] = None,
         catalog: Optional[str] = None,
-        default_radius: Optional[Union[u.Quantity, float]] = None,
+        default_radius: Optional[Union[u.Quantity, float, str]] = None,
         pos_group: Optional[str] = None,
         showcol: Optional[Iterable[str]] = None,
         column_constraints: Optional[List[Mapping[str, Any]]] = None,
@@ -1760,7 +1763,7 @@ class QueryDataBaseQuery(BaseQuery):
         self,
         ra: float,
         dec: float,
-        size: Union[u.Quantity, float],
+        size: Union[u.Quantity, float, str],
         *,
         catalog: Optional[str] = None,
         output_format: str = "votable",
@@ -1787,7 +1790,7 @@ class QueryDataBaseQuery(BaseQuery):
     def query_siap(
         self,
         coordinates,
-        size: Union[u.Quantity, float],
+        size: Union[u.Quantity, float, str],
         *,
         catalog: Optional[str] = None,
         output_format: str = "votable",
@@ -2021,6 +2024,11 @@ class QueryDataBaseQuery(BaseQuery):
                 for chunk in response.iter_content(chunk_size=8192):
                     if chunk:
                         handle.write(chunk)
+            with temp_path.open("rb") as handle:
+                prefix = handle.read(256).removeprefix(b"\xef\xbb\xbf").lstrip().lower()
+            content_type = (response.headers.get("Content-Type") or "").lower()
+            if "html" in content_type or prefix.startswith((b"<!doctype html", b"<html")):
+                raise RemoteServiceError("Download returned HTML instead of a data product.")
             if validator is not None:
                 validator(temp_path)
             temp_path.replace(destination)
@@ -2313,7 +2321,8 @@ class QueryDataBaseQuery(BaseQuery):
             out_path=out_path,
             default_name=f"{file_id}.bin",
         )
-        return self._write_stream_response(response, destination, overwrite=overwrite)
+        with response:
+            return self._write_stream_response(response, destination, overwrite=overwrite)
 
     def _request_batch_download(
         self,
@@ -2415,12 +2424,13 @@ class QueryDataBaseQuery(BaseQuery):
             default_name=default_name,
         )
         validator = self._validate_targz_archive if fmt == "targz" else self._validate_url_list
-        return self._write_stream_response(
-            response,
-            destination,
-            overwrite=overwrite,
-            validator=validator,
-        )
+        with response:
+            return self._write_stream_response(
+                response,
+                destination,
+                overwrite=overwrite,
+                validator=validator,
+            )
 
     def _ids_from_download_products(
         self,
@@ -2533,26 +2543,22 @@ class QueryDataBaseQuery(BaseQuery):
             )
         return fmt
 
-    def _to_degree(self, value: Union[u.Quantity, float], *, name: str) -> float:
+    def _to_degree(self, value: Union[u.Quantity, float, str], *, name: str) -> float:
         try:
-            if isinstance(value, u.Quantity):
-                return float(value.to_value(u.deg))
-            return float(value)
+            return float(Angle(value, unit=u.deg).to_value(u.deg))
         except Exception as exc:
-            raise InvalidQueryError(f"{name} must be a float or angular quantity.") from exc
+            raise InvalidQueryError(f"{name} must be a float or angular quantity, or an angle string.") from exc
 
-    def _to_arcsec(self, value: Union[u.Quantity, float], *, name: str) -> float:
+    def _to_arcsec(self, value: Union[u.Quantity, float, str], *, name: str) -> float:
         try:
-            if isinstance(value, u.Quantity):
-                return float(value.to_value(u.arcsec))
-            return float(value)
+            return float(Angle(value, unit=u.arcsec).to_value(u.arcsec))
         except Exception as exc:
-            raise InvalidQueryError(f"{name} must be a float or angular quantity.") from exc
+            raise InvalidQueryError(f"{name} must be a float or angular quantity, or an angle string.") from exc
 
     def _build_cone_pos(
         self,
         coordinates,
-        radius: Union[u.Quantity, float],
+        radius: Union[u.Quantity, float, str],
         *,
         nearest_only: bool = False,
     ) -> Dict[str, Any]:
@@ -2569,10 +2575,10 @@ class QueryDataBaseQuery(BaseQuery):
 
     def _build_rectangle_pos(
         self,
-        ra_min: Union[u.Quantity, float],
-        ra_max: Union[u.Quantity, float],
-        dec_min: Union[u.Quantity, float],
-        dec_max: Union[u.Quantity, float],
+        ra_min: Union[u.Quantity, float, str],
+        ra_max: Union[u.Quantity, float, str],
+        dec_min: Union[u.Quantity, float, str],
+        dec_max: Union[u.Quantity, float, str],
     ) -> Dict[str, Any]:
         return {
             "type": "rect",
@@ -2623,7 +2629,7 @@ class QueryDataBaseQuery(BaseQuery):
         self,
         positions: Union[str, Iterable[Any]],
         *,
-        default_radius: Optional[Union[u.Quantity, float]] = None,
+        default_radius: Optional[Union[u.Quantity, float, str]] = None,
         nearest_only: bool = False,
     ) -> Dict[str, Any]:
         if isinstance(positions, str):
@@ -3007,7 +3013,7 @@ class QueryDataBaseQuery(BaseQuery):
                 order=order,
                 cache=cache,
             )
-            table = self._parse_result(response, verbose=verbose)
+            table = self._parse_result(response, verbose=verbose, metacols=self._submission_metacols(job))
             table = self._prepare_catalog_result_table(table, payload=payload, job=job)
             if len(table) == 0:
                 if table.colnames:
@@ -3047,7 +3053,7 @@ class QueryDataBaseQuery(BaseQuery):
     def _request_query_region(
         self,
         coordinates,
-        radius: Union[u.Quantity, float],
+        radius: Union[u.Quantity, float, str],
         *,
         catalog: Optional[str] = None,
         output_format: str = "votable",
@@ -3073,7 +3079,7 @@ class QueryDataBaseQuery(BaseQuery):
     def query_region(
         self,
         coordinates,
-        radius: Union[u.Quantity, float],
+        radius: Union[u.Quantity, float, str],
         *,
         catalog: Optional[str] = None,
         output_format: str = "votable",
@@ -3139,7 +3145,7 @@ class QueryDataBaseQuery(BaseQuery):
         *,
         catalog: Optional[str] = None,
         coordinates=None,
-        radius: Optional[Union[u.Quantity, float]] = None,
+        radius: Optional[Union[u.Quantity, float, str]] = None,
         pos: Optional[Mapping[str, Any]] = None,
         pos_group: Optional[str] = None,
         showcol: Optional[Iterable[str]] = None,
@@ -3191,7 +3197,7 @@ class QueryDataBaseQuery(BaseQuery):
         table: Optional[str] = None,
         catalog: Optional[str] = None,
         coordinates=None,
-        radius: Optional[Union[u.Quantity, float]] = None,
+        radius: Optional[Union[u.Quantity, float, str]] = None,
         pos: Optional[Mapping[str, Any]] = None,
         pos_group: Optional[str] = None,
         showcol: Optional[Iterable[str]] = None,
@@ -3248,7 +3254,7 @@ class QueryDataBaseQuery(BaseQuery):
     def query_catalog_cone(
         self,
         coordinates,
-        radius: Union[u.Quantity, float],
+        radius: Union[u.Quantity, float, str],
         *,
         catalog: Optional[str] = None,
         pos_group: Optional[str] = None,
@@ -3287,10 +3293,10 @@ class QueryDataBaseQuery(BaseQuery):
 
     def query_catalog_rectangle(
         self,
-        ra_min: Union[u.Quantity, float],
-        ra_max: Union[u.Quantity, float],
-        dec_min: Union[u.Quantity, float],
-        dec_max: Union[u.Quantity, float],
+        ra_min: Union[u.Quantity, float, str],
+        ra_max: Union[u.Quantity, float, str],
+        dec_min: Union[u.Quantity, float, str],
+        dec_max: Union[u.Quantity, float, str],
         *,
         catalog: Optional[str] = None,
         pos_group: Optional[str] = None,
@@ -3331,7 +3337,7 @@ class QueryDataBaseQuery(BaseQuery):
         positions: Union[str, Iterable[Any]],
         *,
         catalog: Optional[str] = None,
-        default_radius: Optional[Union[u.Quantity, float]] = None,
+        default_radius: Optional[Union[u.Quantity, float, str]] = None,
         pos_group: Optional[str] = None,
         showcol: Optional[Iterable[str]] = None,
         column_constraints: Optional[List[Mapping[str, Any]]] = None,
@@ -3373,7 +3379,7 @@ class QueryDataBaseQuery(BaseQuery):
     def query_object(
         self,
         object_name: str,
-        radius: Union[u.Quantity, float],
+        radius: Union[u.Quantity, float, str],
         *,
         catalog: Optional[str] = None,
         output_format: str = "votable",
@@ -3443,7 +3449,7 @@ class QueryDataBaseQuery(BaseQuery):
 
         raise TableParseError(f"Unrecognized query submission response JSON: {data!r}")
 
-    def _parse_result(self, response, *, verbose: bool = False):
+    def _parse_result(self, response, *, verbose: bool = False, metacols: Sequence[Mapping[str, Any]] = ()):
         if not verbose:
             commons.suppress_vo_warnings()
 
@@ -3519,14 +3525,23 @@ class QueryDataBaseQuery(BaseQuery):
             raise InvalidQueryError(f"Unrecognized JSON response structure: {data!r}")
 
         mime = content_type.partition(";")[0].strip()
+        # Keep character identifiers intact before ASCII's numeric inference.
+        converters = {
+            name: [ascii.convert_numpy(str)]
+            for column in metacols
+            if str(column.get("datatype") or "").lower().split("(", 1)[0].strip()
+            in {"char", "unicodechar", "varchar", "text", "character", "character varying", "string"}
+            for name in self._metacol_identifiers(column)
+        }
 
         if mime == "text/csv":
             try:
                 return ascii.read(
-                    text,
+                    list(StringIO(text, newline="")),
                     format="csv",
                     guess=False,
                     fast_reader=False,
+                    converters=converters,
                 )
             except Exception as exc:
                 raise TableParseError("Failed to parse CSV table response.") from exc
@@ -3534,11 +3549,12 @@ class QueryDataBaseQuery(BaseQuery):
         if mime in {"text/plain", "text/tab-separated-values", "text/tsv"}:
             try:
                 return ascii.read(
-                    text,
+                    list(StringIO(text, newline="")),
                     format="tab",
                     comment=r"\s*#",
                     guess=False,
                     fast_reader=False,
+                    converters=converters,
                 )
             except Exception as exc:
                 raise TableParseError("Failed to parse tab-separated table response.") from exc
